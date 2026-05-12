@@ -4,14 +4,7 @@ set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1)
 
-% addpath(genpath('/scratch/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/Weathering crust/Returning to WC Oct 2022'))
-% addpath(genpath('C:\Users\twood\Dropbox\Oxford Mathematics DPhil\MATLAB\Weathering crust\Returning to WC Oct 2022'))
-% addpath('C:/Users/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/Weathering crust\Returning to WC Oct 2022')
-% 
-% addpath(genpath('/scratch/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/colourmaps'))
-% addpath(genpath('C:\Users\twood\Dropbox\Oxford Mathematics DPhil\MATLAB\colourmaps'))
-% addpath('C:/Users/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/colourmaps')
-addpath(genpath('.'))
+addpath(genpath('.'))       % Add all subfolders to path
 %%
 % ss = ssh;
 

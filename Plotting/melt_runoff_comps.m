@@ -8,10 +8,7 @@ set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',2)
 
-% addpath(genpath('/scratch/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/colourmaps'))
-% addpath(genpath('C:\Users\twood\Dropbox\Oxford Mathematics DPhil\MATLAB\colourmaps'))
-% addpath('C:/Users/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/colourmaps')
-addpath(genpath('.'))
+addpath(genpath('.'))       % Add all subfolders to path
 
 % Colours
 cmap8 = colblind8();

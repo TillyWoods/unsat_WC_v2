@@ -1,9 +1,7 @@
 %% Internal vs. surface melt and runoff for periodic switching
 % 30/05/2025
 
-% addpath(genpath('/scratch/woods/Dropbox/Oxford Mathematics DPhil/MATLAB/Weathering crust/Returning to WC Oct 2022'))
-% addpath(genpath('C:\Users\twood\Dropbox\Oxford Mathematics DPhil\MATLAB\Weathering crust/Returning to WC Oct 2022'))
-% addpath(genpath('C:\Users\woods\Dropbox\Oxford Mathematics DPhil\MATLAB\Weathering crust/Returning to WC Oct 2022'))
+addpath(genpath('.'))       % Add all subfolders to path
 
 set(0,'DefaultTextInterpreter','latex'); 
 set(0,'DefaultAxesFontSize',12,'DefaultTextFontSize',12);

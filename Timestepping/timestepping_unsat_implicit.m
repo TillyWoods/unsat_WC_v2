@@ -1,5 +1,7 @@
 function ss = timestepping_unsat_implicit(ss0,pp,dd,tspan)
     % 27th October 2022
+
+    debug_print = 0;    % Set to 1 to print debugging output
     
     stopZm = dd.stopZm;
     ind_stop = stopZm; %or(isstring(tspan),ischar(tspan));
@@ -89,7 +91,9 @@ function ss = timestepping_unsat_implicit(ss0,pp,dd,tspan)
         
         % Carry out timestepping
         ss_step = full_timestep_implicit_qflux(ss_step,Qsi,Q0,pp.Tinf,Rs,Rr,alpha,r,nu,pp,dd,dt);
-        fprintf([newline,'t = ',num2str(t),newline])
+        if debug_print == 1
+            fprintf([newline,'t = ',num2str(t),newline])
+        end
 
         crust_gone = double(crust_gone) + double((ss_step.Zm-ss_step.Zf)<=1e-12);
 

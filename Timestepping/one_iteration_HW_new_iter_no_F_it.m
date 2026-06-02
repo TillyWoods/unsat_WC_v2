@@ -8,6 +8,8 @@ function [H,W,T,phi,S,Tsurf,msurf,hdot] = one_iteration_HW_new_iter_no_F_it(ss_o
     % F and a are calculated at the start of the timestep.
 
     % ss_old = solution from previous timestep
+
+    debug_print = 0;    % Set to 1 to print debugging output
     
     W = ss_old.W; %W_it; %ssit.W;
     phi = ss_old.phi; %phi_it;
@@ -104,7 +106,9 @@ function [H,W,T,phi,S,Tsurf,msurf,hdot] = one_iteration_HW_new_iter_no_F_it(ss_o
     end
 
     if or(or(Wnew(end)<1-1e-5,abs(Hnew(end)-pp.Tinf)>1e-4),unsatedge(end)==1)
-        fprintf(['ISSUE!!! Wend = ',num2str(Wnew(end)),', Hend - Tinf = ',num2str(Hnew(end)-pp.Tinf),', unsatedge(end) = ',num2str(unsatedge(end))])
+        if debug_print == 1
+            fprintf(['ISSUE!!! Wend = ',num2str(Wnew(end)),', Hend - Tinf = ',num2str(Hnew(end)-pp.Tinf),', unsatedge(end) = ',num2str(unsatedge(end))])
+        end
     end
 
     %% Calculate Tsurf, msurf, phisurf, hdot

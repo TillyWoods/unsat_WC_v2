@@ -2,6 +2,8 @@ function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hfla
 % 26-08-2024 - modified to calculate F once at the start of each timestep,
 % rather than inside iterations
 
+debug_print = 0;    % Set to 1 to print debugging output
+
 meltold = ss_old.melt;
 melt = meltold;
 Hflagold = ss_old.Hflag;
@@ -77,7 +79,9 @@ a = a0;
     Tsurftol = 1e-5;
 
     if and(meltold==1,msurf<=0)        % If melt was assumed but we calculated a negative or 0 melt rate...
-        fprintf([newline,'Swicth to no melt BC (first switch).',newline])
+        if debug_print == 1
+            fprintf([newline,'Swicth to no melt BC (first switch).',newline])
+        end
         melt = 0;
         [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iterations_HFWq_new_iter_no_F_it...
         (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming no melt.
@@ -96,16 +100,22 @@ a = a0;
             pw = pwmid;
             q = qmid;
             roff = roffmid;
-            fprintf([newline,'Revert to melt BC.',newline])
+            if debug_print == 1
+                fprintf([newline,'Revert to melt BC.',newline])
+            end
             if msurf<0      % If both melt flags give unphysical solutions, keep the second attempt as the solution and set msurf=0.
-                fprintf([newline,'PROBLEM! Both BCs are unphysical. msurf = ',num2str(msurf),newline]);
+                if debug_print == 1
+                    fprintf([newline,'PROBLEM! Both BCs are unphysical. msurf = ',num2str(msurf),newline]);
+                end
                 msurf = 0;
             end
         end
             
     elseif and(meltold==0,Tsurf>=0)    % If no melt was assumed but we calculated a positive or 0 surface temp...
-        fprintf([newline,'Swicth to melt BC (first switch).',newline])
-        melt = 1;
+        if debug_print == 1
+            fprintf([newline,'Swicth to melt BC (first switch).',newline])
+        end
+            melt = 1;
         [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iterations_HFWq_new_iter_no_F_it...
         (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming melt.
 
@@ -123,9 +133,13 @@ a = a0;
             pw = pwmid;
             q = qmid;
             roff = roffmid;
-            fprintf([newline,'Revert to no melt BC.',newline])
+            if debug_print == 1
+                fprintf([newline,'Revert to no melt BC.',newline])
+            end
             if Tsurf>0  % If both melt flags give unphysical solutions, keep the second attempt as the solution and set Tsurf=0.
-                fprintf([newline,'PROBLEM! Both BCs are unphysical. Tsurf = ',num2str(Tsurf),newline]);
+                if debug_print == 1
+                    fprintf([newline,'PROBLEM! Both BCs are unphysical. Tsurf = ',num2str(Tsurf),newline]);
+                end
                 Tsurf = 0;
             end
         end

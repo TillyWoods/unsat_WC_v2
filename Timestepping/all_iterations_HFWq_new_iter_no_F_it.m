@@ -2,6 +2,8 @@ function [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iteratio
     % 26-08-2024 - modified to calculate F once at the start of each timestep,
     % rather than inside iterations
 
+    debug_print = 0;    % Set to 1 to print debugging output
+
     W = ss_old.W;
     phi = ss_old.phi;
     S = ss_old.S;
@@ -74,17 +76,19 @@ function [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iteratio
         %% Stop the iterations if both the assumed enthalpy flag and the assumed unsat flag were correct AND the past 2 iterations are within a tolerance
         dif = norm(H1-H) + norm(W1-W); %norm(phi1-phi)+norm(S1-S)+norm(T1-T)+norm(q1-q); % difference from previous iterate
         tol = 1e-3; %1e-6;
-        if and(Hflag_diff==0,unsatedge_diff==0) %and(and(Hflag_diff==0,unsatedge_diff==0),dif<tol)
-            fprintf([newline,'Enthalpy flag AND unsat flag correct after ',num2str(i),' out of ',num2str(n_iterations),' iterations. Iterations stopped.',newline])
-            break
-        else
-            fprintf([newline,'Iteration ',num2str(i),' out of ',num2str(n_iterations),': Hflag_diff=',num2str(Hflag_diff),', unsatedge_diff=',num2str(unsatedge_diff),newline]);
-            if and(i==n_iterations,Hflag_diff>1)
-                fprintf(['Flags not converged after all iterations, and Hflag_diff=',num2str(Hflag_diff),'!'])
+        if debug_print == 1
+            if and(Hflag_diff==0,unsatedge_diff==0) %and(and(Hflag_diff==0,unsatedge_diff==0),dif<tol)
+                fprintf([newline,'Enthalpy flag AND unsat flag correct after ',num2str(i),' out of ',num2str(n_iterations),' iterations. Iterations stopped.',newline])
+                break
+            else
+                fprintf([newline,'Iteration ',num2str(i),' out of ',num2str(n_iterations),': Hflag_diff=',num2str(Hflag_diff),', unsatedge_diff=',num2str(unsatedge_diff),newline]);
+                if and(i==n_iterations,Hflag_diff>1)
+                    fprintf(['Flags not converged after all iterations, and Hflag_diff=',num2str(Hflag_diff),'!'])
+                end
+                % if i>7
+                %     i
+                % end
             end
-            % if i>7
-            %     i
-            % end
         end
 
         % if dif<tol

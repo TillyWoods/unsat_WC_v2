@@ -26,7 +26,7 @@ tend = t(end) - tshift - period + 62; %31;
 spacing = 1; %0.0001; %0.5; %2; 
 % plot_times = t(end) - tshift - period + 0.001+ [22,22.4,22.8,23,24,25];%[tstart:spacing:tend]; % [40:1:45]; %[10,11,14,20,32]; %[[tstart:spacing:tend],t(end)];
 % plot_times = [tstart:spacing:tend];
-plot_times = t(end) - tshift - period + 0.001+ [44,45,45.5,46,48,51];
+plot_times = t(end) - tshift - period + 0.001+ [22:0.1:22.5]; %[22,24,26,28,30]; %[44,45,45.5,46,48,51];
 np = length(plot_times);
 to_plot = zeros(np,1);
 for i=1:np
@@ -43,6 +43,7 @@ phicol = 0*[1 1 1];
 qcol = cmap2(4,:);
 qdcol = cmap2(3,:);
 Tcol = cmap2(5,:);
+mintcol = cmap2(2,:);
 
 %%
 sequence_plot = figure(13);
@@ -52,18 +53,25 @@ ncols = 6; %ceil((length(to_plot)-1)/2);
 tl = tiledlayout(1,ncols,'padding','compact','TileSpacing','compact');
 % title(tl,['$\mathcal{K}_\mathrm{d}=',num2str(pp.Kd),'$'],'interpreter','latex')
 
+mint_int = zeros(size(to_plot));
+phi_diff_dt_int = zeros(size(to_plot));
+
 for j=1:length(to_plot)
-nexttile
+    mint_int(j) = trapz(dd.Z,ss(i).mint);
+    phi_diff_dt_int(j) = trapz(dd.Z,(ss(i).phi-ss(i-1).phi)/(ss(i).t-ss(i-1).t));
+ax(j) = nexttile;
 box on
 hold on
 % grid on
 set(gca,'YDir','reverse')
-ylim([0,1])
-xlim([-0.4,1]) %xlim([-0.1,1.2]) %([-0.1,2.3]) %xlim([0,1.1])
+ylim([0,0.08])
+xlim([-1,1]) %xlim([-0.1,1.2]) %([-0.1,2.3]) %xlim([0,1.1])
 i = to_plot(j);
-p1 = plot(ss(i).phi*5,dd.Z,'color',phicol,'displayname','$\phi \times 5$');
+p1 = plot(ss(i).phi*5,dd.Z,'color',phicol,'displayname','$\phi \times 5$','marker','x');
 p2 = plot(ss(i).S,dd.Z,'color',Scol,'displayname','$S$');
 p5 = plot(ss(i).T,dd.Z,'color',Tcol,'displayname','$T$');
+p6 = plot(ss(i).mint,dd.Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}$');
+p7 = plot((ss(i).phi-ss(i-1).phi)/(ss(i).t-ss(i-1).t),dd.Z,'Color',mintcol,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$','LineStyle','--');
 % p3 = plot(ss(i).q*30,dd.Zedge,'color',qcol,'displayname','$q \times 30$');
 % p4 = plot(ss(i).qd*20,dd.Z,'color',qdcol,'displayname','$q_\mathrm{d} \times 20$');
 if plot_ana==1
@@ -89,6 +97,13 @@ if j==3
 %     xlabel('variables','HorizontalAlignment','right')
 end
 end
+linkaxes(ax)
+
+figure
+hold on
+plot(mint_int,'DisplayName','$m_{\mathrm{int}}$')
+plot(phi_diff_dt_int,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$')
+legend('interpreter','latex')
 
 
 

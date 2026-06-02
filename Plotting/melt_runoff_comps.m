@@ -34,6 +34,15 @@ meltinZ = trapz(Z,meltin);  % total subsurface melt rate (integrated over Z)
 freezeZ = trapz(Z,freeze);  % total subsurface freezing rate (integrated over Z)
 mintZ = trapz(Z,mint);
 
+% Recalculate all the internal melt rates etc. manually for debugging
+% (02/06/2026)
+mint_manual = ([ss.phi] - [ss(1).phi,[ss(1:end-1).phi]])/dd.dt/10; % [zeros(1,length([ss.t]));diff([ss.phi],1)/dd.dt];       % mint calculated as (phi-phi_old)/dt
+melt_manual = max(mint_manual,0);
+freeze_manual = -min(mint_manual,0);
+melt_manualZ = trapz(Z,melt_manual);
+freeze_manualZ = trapz(Z,freeze_manual);
+mint_manualZ = trapz(Z,mint_manual);
+
 % Where to start and end the period of interest
 tstart = t(end)-60;
 tend = t(end);
@@ -106,10 +115,12 @@ clf
 box on
 hold on
 plot(t,msurf,'DisplayName','Surface melt','Color',msurf_col)
-plot(t,meltinZ,'DisplayName','Internal melt','Color',mint_col)
+plot(t,meltinZ,'DisplayName','Subsurface melt','Color',mint_col)
 plot(t,roff,'DisplayName','Surface runoff','Color',roff_col)
 plot(t,qdZ,'DisplayName','Subsurface runoff','Color',qd_col)
 plot(t,freezeZ,'DisplayName','Freezing','Color',freeze_col)
+plot(t,freeze_manualZ,'DisplayName','Freezing manual','Color',freeze_col,'LineStyle','--')
+plot(t,melt_manualZ,'DisplayName','Subsurface melt manual','color',mint_col,'linestyle','--')
 xline([2,22,42],'linestyle','--','HandleVisibility','off')
 plot(t,q(1,:),'DisplayName','Surface q','LineStyle','--')
 % plot(t,W(1,:)/50)

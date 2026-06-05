@@ -12,7 +12,7 @@
 %%
 addpath(genpath('.'))   % Add all subfolders to path
 
-Kd_vals = 50; %[0,3];
+Kd_vals = 0; %[0,3];
 
 % Use no drainage solution after 10 periods as initial condition, if the
 % logical below is set to 1 (added 14/08/2025). Otherwise, use steadily
@@ -30,7 +30,7 @@ Kd = Kd_vals(i);
 % Use smaller timesteps if water flow is allowed
 if Kd == 0
     dt = 0.25*1e-3; %1e-2; %0.25*1e-3;
-    gap = 4*1e2; %10;
+    gap = 4*1e2; %1; %10;
 else
     dt = 0.25*1e-3;
     gap = 4*1e2;
@@ -97,7 +97,7 @@ else
     [ss0.H,ss0.W] = convert_T_to_H(ss0.T,ss0.phi,ss0.S,pp);
 end
 
-tspan =  [0,5]; %20*period]; %[0,10*period]; %[0,1]; %[0,100]; %[0,0.1];
+tspan = [0,20*period]; %[0,10*period]; %[0,1]; %[0,100]; %[0,0.1];
 
 
 %% Timestepping

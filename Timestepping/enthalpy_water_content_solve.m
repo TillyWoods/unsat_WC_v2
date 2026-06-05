@@ -12,8 +12,8 @@ function [Hnew,Wnew,Tnew,phinew,Snew,Tsurfnew,msurfnew,hdotnew] = enthalpy_water
     % Rs = snowfall rate
     % Rr = rainfall rate
     % Qsi = incoming shortwave radiation
-    % Q0 = combinded longwave radiation and turbulent heat fluxes
-    % nu = 
+    % Q0 = longwave radiation and turbulent heat fluxes
+    % nu = effective heat transfer coefficient
     % Tinf = surface temperature
     % Hflag = enthalpy flag
     % melt = melt flag
@@ -41,9 +41,9 @@ function [Hnew,Wnew,Tnew,phinew,Snew,Tsurfnew,msurfnew,hdotnew] = enthalpy_water
     phi_edge = harmonic_mean(phi);  % ...harmonic mean for phi
     S_edge = [S(1);S];              % ...upwinding for S
 
-    k = pp.K*phi_edge.^3;       % permeability from previous iteration
-    krw = S_edge.^3;            % relative permeability from previous iteration
-    k(1) = 0;           % part of implementing the q = Rs+Rr-W*hdot at Z=0 BC (added 15/05/2024)
+    k = pp.K*pp.perm(phi_edge);       % permeability from previous iteration (probably phi^3)
+    krw = pp.rel_perm(S_edge);        % relative permeability from previous iteration (probably S^3)
+    k(1) = 0;           % part of implementing the q = Rs+Rr-W*hdot at Z=0 BC
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Other functions used in the matrix equations

@@ -4,7 +4,7 @@ function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hfla
 % (If the assumed SEB works (unless msurf = 0 or Tsurf = 0), stick with it.
 % If not (i.e. if we get negative or zero surface melt, or positive or zero
 % surface temperature), try the other case. If neither work (hopefully 
-% never the case), keep the second attempt.)
+% never the case) or both work, keep the second attempt.)
 
 % 26-08-2024 - modified to calculate F once at the start of each timestep,
 % rather than inside iterations

@@ -99,6 +99,9 @@ function ss = timestepping_unsat_implicit(ss0,pp,dd,tspan)
 
         % Store the timesteps we want to store
         if or(mod(j-1,dd.gap)==0,t>=tend)   % tend bit makes sure we always store the final timestep
+            if debug_print == 0     % print time only at timesteps to save
+                fprintf([newline,'t = ',num2str(t),newline])
+            end
             if t>=tend
                 i=i+1;
             else

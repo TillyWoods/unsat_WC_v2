@@ -1,4 +1,11 @@
-function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = HFWq_timestep_new_iter_no_F_it(ss_old,alpha,r,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
+function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = SEB_iterations(ss_old,alpha,r,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
+% Iterate the full enthalpy, water content annd water fluxes solutions
+% until the correct (i.e. consistent) surface energy balance is reached.
+% (If the assumed SEB works (unless msurf = 0 or Tsurf = 0), stick with it.
+% If not (i.e. if we get negative or zero surface melt, or positive or zero
+% surface temperature), try the other case. If neither work (hopefully 
+% never the case), keep the second attempt.)
+
 % 26-08-2024 - modified to calculate F once at the start of each timestep,
 % rather than inside iterations
 
@@ -43,7 +50,7 @@ a = a0;
     % be sure) of iterations are carried out in which the enthalpy flag is 
     % updated each time if it was incorrectly assumed. The iterations stop 
     % if the enthalpy flag is correct.
-    [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iterations_HFWq_new_iter_no_F_it...
+    [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
         (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,meltold,unsatedgeold,dd,pp,dt);
 
     % Keep the solutions calculated up until this point so that we can
@@ -83,7 +90,7 @@ a = a0;
             fprintf([newline,'Swicth to no melt BC (first switch).',newline])
         end
         melt = 0;
-        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iterations_HFWq_new_iter_no_F_it...
+        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
         (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming no melt.
         
         if Tsurf>0      % If the new assumption of no melt was also incorrect (Tsurf>0)...
@@ -116,7 +123,7 @@ a = a0;
             fprintf([newline,'Swicth to melt BC (first switch).',newline])
         end
             melt = 1;
-        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iterations_HFWq_new_iter_no_F_it...
+        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
         (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming melt.
 
         if msurf<0      % If the new assumption of melt was also incorrect (msurf<0)...

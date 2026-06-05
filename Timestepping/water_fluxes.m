@@ -1,4 +1,7 @@
-function [pw,q,roff,funsat_cell,funsat_edge] = water_pressure_and_flux_simpler_pw0(phi,S,W,hdot,pp,dd,Rs,Rr)
+function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,pp,dd,Rs,Rr)
+    % Calculates the water fluxes, for a given saturation and porosity
+    % solution.
+
     % 5th June 2024 (modified from water_pressure_and_flux_unsat_flag.m, 13th May 2024)
     % The difference: this new version solves for the water pressure using
     % the same method everywhere, rather than analytically when there is a

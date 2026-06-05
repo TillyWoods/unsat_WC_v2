@@ -102,7 +102,7 @@ tspan = [0,20*period]; %[0,10*period]; %[0,1]; %[0,100]; %[0,0.1];
 
 %% Timestepping
 tic
-ss = timestepping_unsat_implicit(ss0,pp,dd,tspan);
+ss = timestepping(ss0,pp,dd,tspan);
 toc
 
 %% Save data

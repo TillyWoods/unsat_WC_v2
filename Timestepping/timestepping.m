@@ -1,4 +1,7 @@
-function ss = timestepping_unsat_implicit(ss0,pp,dd,tspan)
+function ss = timestepping(ss0,pp,dd,tspan)
+    % Carry out the simulation, i.e. do the timestepping until the final
+    % time (or another condition) is reached.
+
     % 27th October 2022
 
     debug_print = 0;    % Set to 1 to print debugging output

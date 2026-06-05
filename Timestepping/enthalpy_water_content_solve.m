@@ -1,5 +1,7 @@
-function [H,W,T,phi,S,Tsurf,msurf,hdot] = one_iteration_HW_new_iter_no_F_it(ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt)
-    % [H,W,F,Fplus,Fminus,a,Tsurf,msurf,unsatedge]
+function [H,W,T,phi,S,Tsurf,msurf,hdot] = enthalpy_water_content_solve(ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt)
+    % Build and solve the matrix systems for the enthalpy H and total water
+    % content W, with provided forcings and water fluxes. The porosity phi,
+    % saturation S and temperature T are recovered.
 
     % 26-08-2024 - modified to calculate F once at the start of each timestep,
     % rather than inside iterations. Only the enthalpy and unsat flags are

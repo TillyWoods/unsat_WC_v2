@@ -1,4 +1,11 @@
-function [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iterations_HFWq_new_iter_no_F_it(ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt)
+function [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations(ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt)
+    % Iterate the enthalpy and water content solve with the water fluxes
+    % solve, updating the enthlapy and unsat flags at each interation
+    % (which determine in which regions the conductive heat fluxes exist
+    % and  in which regions the unsaturated/saturated water fluxes should
+    % be applied) until both flags agree with the previous iteration AND
+    % the solution is within a certain tolerance of the previous iteration.
+
     % 26-08-2024 - modified to calculate F once at the start of each timestep,
     % rather than inside iterations
 
@@ -24,21 +31,13 @@ function [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = all_iteratio
         unsatedge1 = unsatedge;
         Hflag1 = Hflag;
         %% Calculate H, W, F from the solution from the previous iteration
-
-        % unsatedge = 0*ones(dd.N+1,1);
-
-        % [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot] = one_iteration_HFW...
-            % (ss_old,W,phi,S,F,q,a,alpha,r,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt);
-        % [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot] = one_iteration_HFW_ANALYTICAL_F...
-        %     (ss_old,W,phi,S,F,q,a,alpha,r,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt);
-        [H,W,T,phi,S,Tsurf,msurf,hdot] = one_iteration_HW_new_iter_no_F_it...
+        [H,W,T,phi,S,Tsurf,msurf,hdot] = enthalpy_water_content_solve...
             (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflag,melt,unsatedge,dd,pp,dt);
 
         %% Calculate q from new phi,S just calculated
         % The new flag unsatedgenew (which identifies the edges on which the
         % unsaturated form of the flux should be used) is also calculated.
-        % [pw,q,roff,~,unsatedgenew] = water_pressure_and_flux_unsat_flag(phi,S,W,hdot,pp,dd,Rs,Rr);
-        [pw,q,roff,~,unsatedgenew] = water_pressure_and_flux_simpler_pw0(phi,S,W,hdot,pp,dd,Rs,Rr);
+        [pw,q,roff,~,unsatedgenew] = water_fluxes_solve(phi,S,W,hdot,pp,dd,Rs,Rr);
 
         %% Update the unsat flag,
         % to be whatever is calculated from the solution of this iteration

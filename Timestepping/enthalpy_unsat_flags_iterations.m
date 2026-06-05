@@ -14,12 +14,10 @@ function [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_uns
     W = ss_old.W;
     phi = ss_old.phi;
     S = ss_old.S;
-    % F = ss_old.F;
     q = ss_old.q;
-    % a = ss_old.a;
     H = ss_old.H;
     T = ss_old.T;
-    n_iterations = 3; %3; %10;  % MUST BE ODD! Otherwise there are jumps in q. (6/6/23)
+    n_iterations = 3;  % MUST BE ODD! Otherwise there are jumps in q. (6/6/23)
     for i = 1:n_iterations
         % fprintf([newline,'Iteration ',num2str(i),' out of ',num2str(n_iterations),newline]);
         H1 = H;

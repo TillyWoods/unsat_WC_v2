@@ -98,85 +98,105 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     sat_not_sol = and(sat,~sol_sat_sol);
 
 
-    %% Lateral drainage
-    qd = pp.Kd*pp.K.*pp.perm(phi).*pp.krw(S);
-    % qd = pp.Kd*pp.K*pp.perm((phi_edge(1:end-1)+phi_edge(2:end))/2).*pp.krw((S_edge(1:end-1)+S_edge(2:end))/2);
-    % qd = pp.Kd*pp.K.*pp.perm(phi_edge).*pp.krw(S_edge);
-
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Solve for water pressure pw
-    % Calculate water pressure pw in unsaturated regions using pw = -1/(B*
-    % s^2)
-    pw = NaN*ones(dd.N,1);           
-    pw(unsat) = 0; % -(1/pp.B)*S(unsat).^(-2);
-    pw(dry) = 0;                % pw is set to 0 in dry regions, i.e. assume they're at atmospheric pressure.
-    pw(solid) = 0;              % set pw=0 in solid regions 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % The water pressure pw is rquired to calculate the water flux q in 
+    % (most) saturated regions. As boubdary conditions for calculated pw 
+    % in the saturated regions, we also need the water pressure in the 
+    % unsaturated regions. 
     
-    % Set up linear system to solve d/dZ(K*phi^3*dpw/dZ)=d/dZ(K*phi^3) for 
-    % pw in the saturated regions
-    k = pp.K*phi_edge.^3;     % permeability
+    % pw is calculated differently in unsaturated and
+    % saturated regions.
+
+    %%%%%%%%%%%%%%%%%%%%%%%
+    % Unsaturated regions
+    %%%%%%%%%%%%%%%%%%%%%%%
+
+    % Calculate the water pressure pw in unsaturated regions using 
+    % pw = -1/(B*S^2), which we approximate by pw = 0 (since the Bond
+    % number B is large and, regardless, including the 1/S^2 term causes
+    % numerical issues
+    pw = NaN*ones(dd.N,1);
+    pw(unsat) = 0;
+
+    % pw is set to 0 in dry regions, i.e. assume they're at atmospheric 
+    % pressure
+    pw(dry) = 0;  
+
+    % Set pw=0 in solid regions 
+    pw(solid) = 0;
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Saturated regions
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    % Set up linear system to solve 
+    % d/dZ(K*phi^3*dpw/dZ)=d/dZ(K*phi^3) + Kd*K*phi^3 
+    % for pw in the saturated regions
+
+    k = pp.K*pp.perm(phi_edge);     % permeability (pp.perm(phi) = phi^3 in the equation above)
+
+    % Implement pw=0 at Z=0 when the surface is saturated
     Dcentre = dd.Dcentre;
-    Dcentre(1,:) = sparse(1,1,2./dd.dZ(1),1,dd.N);          % implement pw=0 at Z=0 when the surface is saturated
+    Dcentre(1,:) = sparse(1,1,2./dd.dZ(1),1,dd.N);
+
+    % Build linear system
+    % (The second term on the rhs is the lateral drainage term)
     Dflux = dd.Dflux;
     lhs = Dflux*spdiags(k,0,dd.N+1,dd.N+1)*Dcentre;
-    rhs = Dflux*k + pp.Kd*pp.K*pp.perm(phi); %qd(1:end-1); %[qd(1);qd]; % %pp.perm(([phi_edge(1:end-1)]+[phi_edge(2:end)])/2);
+    rhs = Dflux*k + pp.Kd*pp.K*pp.perm(phi);
     
-    % Solve in saturated regions NOT BOUNDED BY TWO SOLID REGIONS (23/07/2024),
-    % with the term subracted from the rhs
-    % ensuring continuity of pressure at interfaces with unsaturated
-    % regions
-    
-    % pw(sat) = lhs(sat,sat)\(rhs(sat)-lhs(sat,unsat)*pw(unsat));
+    % Solve in saturated regions NOT BOUNDED BY TWO SOLID REGION 
+    % (The term subracted from the rhs ensures continuity of pressure at 
+    % interfaces with unsaturated regions)
     pw(sat_not_sol) = lhs(sat_not_sol,sat_not_sol)\(rhs(sat_not_sol)-lhs(sat_not_sol,unsat)*pw(unsat));
     
-    %% Calculate the Darcy fluxes q at all cell edges
-    q = NaN*ones(dd.N+1,1);                                 % q=NaN when there is no water
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Calculate fluxes q at cell edges (between cells of same type)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % Flux in terms of pw for saturated regions (with unsaturated or dry
-    % cells at the bottom, otherwise q=0)
+    q = NaN*ones(dd.N+1,1);       % q=NaN when there is no water
+
+    % Flux saturated regions, in terms of pw (and phi)
     qsat = k.*(1-Dcentre*pw); 
 
-    % Flux in unsaturated region
-    krw = S_edge.^3; %S_hm.^3;                                  % relative permeability
-    qunsat = k.*(krw-(2/pp.B)*dd.Dcentre*S);     % use the flux in terms of S for unsaturated regions
-    qunsat(1) = Rs+Rr-W(1)*hdot;              % to satisfy surface BC when surface is unsaturated
+    % Flux in unsaturated regions, in terms of S (and phi)
+    krw = pp.rel_perm(S_edge);                   % relative permeability
+    qunsat = k.*(krw-(2/pp.B)*dd.Dcentre*S);    
+    qunsat(1) = Rs+Rr-W(1)*hdot;    % to satisfy (saturated) surface BC
 
-    % NEW 20/08/2024
+    % If the saturation is below a tolerance, set the flux to zero -
+    % NEEDED?
     qunsat(S_hm<pp.tolS0) = 0;
-
-    if sum(sat_not_sol(1:5))<=2
-        sum(sat_not_sol(1:5));
-    end
     
     % Identify edges that lie within one region (i.e. same type of cell on
     % both sides)
-    % dry_edge = edges(dry,dry);                      % edge with dry cells on both sides
     solid_edge = edges(solid,solid);                % edge with solid cells on both sides
-    % sat_edge = edges(sat,sat);             % edge with saturated cells on both sides
-    sat_not_sol_edge = edges(sat_not_sol,sat_not_sol);             % edge with saturated cells NOT IN A SOL-SAT-SOL REGION (23/07/2024) on both sides
+    sat_not_sol_edge = edges(sat_not_sol,sat_not_sol);             % edge with saturated cells NOT IN A SOL-SAT-SOL REGION on both sides
     unsatd_edge = edges(unsatd,unsatd);             % edge with unsaturated/dry cells on both sides
     unsat_edge = edges(unsat,unsat);                % edges with unsaturated cells on both sides
 
-    % Calculate the flux at these internal cell edges                       % flux between dry cells
-    q(solid_edge) = 0;                      % flux between solid cells (no flux)
-    % q(sat_edge) = qsat(sat_edge); %0;                       % flux between saturated cells
-    q(sat_not_sol_edge) = qsat(sat_not_sol_edge); %0;                       % flux between saturated cells NOT IN A SOL-SAT-SOL REGION (23/07/2024)
-    q(unsatd_edge) = qunsat(unsatd_edge);   % flux between unsaturated/dry cells (use the unsaturated form of q)
+    % Calculate the flux at these internal cell edges, between 2...
+    q(solid_edge) = 0;                      % ...solid cells (no flux)
+    q(sat_not_sol_edge) = qsat(sat_not_sol_edge);    % ...saturated cells NOT IN A SOL-SAT-SOL REGION
+    q(unsatd_edge) = qunsat(unsatd_edge);   % ...unsaturated/dry cells (use the unsaturated form of q)
 
     % Solve for q directly (without solving for pw first) in saturated
-    % regions bounded by two solid regions, if they exist (23/07/2024)
+    % regions bounded by two solid regions, if they exist
+    % (This is necessary since the problem for pw in these regions is
+    % ill-posed)
     if sum(sol_sat_sol)>0
         bottoms = edges(sol_sat_sol,~sol_sat_sol);  % cells at the bottom of sol-sat-sol regions
         tops = edges(~sol_sat_sol,sol_sat_sol);     % cells at the top of sol-sat-sol regions
-        % if sum(tops)<sum(bottoms)   % if tops is shorter than bottoms, it means that the highest region extends to the surface
-        %     tops(1) = 1;
-        % end
         botind = find(bottoms);       % indicies for the bottom cells of sol-sat-sol regions
         topind = find(tops);          % indicies for the top cells of sol-sat-sol regions
         for i = 1:length(botind)    % for each sol-sat-sol region...
             Zbot = dd.Zedge(botind(i)+1);   % edge at bottom
             Ztop = dd.Zedge(topind(i));     % edge at top
-            Zspan = [Zbot,Ztop]; %flip(dd.Zedge(topind(i):botind(i)+1)); %[Zbot,flip(dd.Z(tops(i):bottoms(i))),Ztop];
-            odefunc = @(Z,q) -pp.Kd*interp1(dd.Z,phi.^3,Z);    % dq/dZ = -qd = -Kd*phi^3 in sat region
+            Zspan = [Zbot,Ztop];
+            odefunc = @(Z,q) -pp.Kd*interp1(dd.Z,pp.perm(phi),Z);    % dq/dZ = -qd = -Kd*phi^3 in sat region
             q0 = 0;     % no flux at the bottom of the sol-sat-sol region
             [Zout,qout] = ode15s(odefunc,Zspan,q0);
             q(topind(i):botind(i)+1) = interp1(Zout,qout,dd.Zedge(topind(i):botind(i)+1));   % interpolate onto cell edges
@@ -184,13 +204,13 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     end
 
     
-    %% Sort out the more complicated behaviour at the boundary between
-    % different regions
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Calculate fluxes q betweeen different types of cell
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Identify the edges between different regions
     sat_unsatd_edge = edges(sat,unsatd);    % edge with saturated above and unsaturated/dry below
-    unsatd_sat_edge = edges(unsatd,sat);       % edge with unsaturated/dry above and saturated below
-
+    unsatd_sat_edge = edges(unsatd,sat);    % edge with unsaturated/dry above and saturated below
     sol_above = edges(solid,~solid);        % any edge with solid above and not solid below
     sol_below = edges(~solid,solid);        % any edge with solid below and not solid above
 
@@ -204,35 +224,29 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     q(unsatd_sat_edge) = min(qunsat(unsatd_sat_edge),qsat(unsatd_sat_edge));    % flux on edge with unsaturated/dry above and saturated below
 
     q(sol_above) = 0;   % ????
-    q(sol_below) = 0;   % there's no flux at an edge with a solid cell below
+    q(sol_below) = 0;   % no flux at an edge with a solid cell below
 
     % What do I do about a solid edge above a saturated (or any other) 
     % region? Assume that this will never happen? No, I think it can, but
     % how should I deal with it?
 
-    % Flags to save for the next timestep/iteration (added 13/05/2024):
-    funsat_cell = unsat + dry;      % = 1 in unsaturated and dry cells
-    % funsat_edge = ...               % = 1 on edges on which the uunsat flux is used
-    %     unsatd_edge; %...             % edges with unsat on both sides
-    %     % + (qunsat.*sat_unsatd_edge>qsat.*sat_unsatd_edge)...    % edges with sat above and unsat/dry below that give max flux out of sat region when unsat (not sat) flux is used
-    %     % + (qunsat.*unsatd_sats_edge<0)...                       % edges with unsat/dry above and sat-above-solid below that give max flux out of sat region when unsat (not sat) flux is used
-    %     % + (qunsat.*unsatd_satud_edge<qsat.*unsatd_satud_edge);  % edges with unsat/dry above and sat-above-unsat/dry below that give max flux out of sat region when unsat (not sat) flux is used  
-   
-    funsat_edge = unsat_edge;     % UPDATE 10/6/24: define unsatedge to EXCLUDE edges neighbouring dry cells - this prevents the porority from going wiggly in dry, porous regions. 
+    % Flags to save for the next timestep/iteration:
+    funsat_cell = unsat + dry;    % = 1 in unsaturated and dry cells
+    funsat_edge = unsat_edge;     % = 1 on edges between to unsaturated cells
+    % (EXCLUDES edges neighbouring dry cells - this prevents the porority from going wiggly in dry, porous regions) 
 
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %% Calculate surface runoff
-   if (3/2)*W(1)-(1/2)*W(2)>=1-pp.tolS1 %tol     % if the surface is saturated, we have runoff    UPDATED 15/01/2025 to change S to W so that runoff can still happen when surface is solid
-       roff = Rs + Rr - q(1) - hdot*W(1);        % (we approximate hdot*W at the surface (cell edge) by the value at the cell centre below)
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   if (3/2)*W(1)-(1/2)*W(2)>=1-pp.tolS1     % if the surface is saturated, we have runoff
+       roff = Rs + Rr - q(1) - hdot*W(1);   % (we approximate hdot*W at the surface (cell edge) by the value at the cell centre below)
    else
        roff = 0;
    end
-   if sum(isnan(q))>0
-      % sum(isnan(q))
-   end
-   if sum(q(1:3))>5
-       % sum(q(1:3))
-   end
 
+%%%%%%%%%%%%%%%%%
+%% Functions
+%%%%%%%%%%%%%%%%%
 function edgesab = edges(a,b)
     % Creates a logical identifying the edges where logical a is true on
     % the cell above and logical b is true on the cell below.

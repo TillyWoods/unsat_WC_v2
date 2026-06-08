@@ -176,6 +176,16 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     unsatd_edge = edges(unsatd,unsatd);             % edge with unsaturated/dry cells on both sides
     unsat_edge = edges(unsat,unsat);                % edges with unsaturated cells on both sides
 
+    % Decide how the surface should be treated (solid, sat, ...)
+    % This is done by approximating the surface values of W and phi from
+    % the cell centre values, and applying the saturated/solid tolerances
+    % to those extrapolated values.
+    Wsurf = (3/2)*W(1) - (1/2)*W(2);            % linear extrapolation
+    phi_surf = (3/2)*phi(1) - (1/2)*phi(2);     % linear extrapolation
+    solid_edge(1) = phi_surf <= 1-tolphi0;
+    sat_not_sol_edge(1) = and(~solid_edge(1), Wsurf >= 1-tolS1);
+    unsatd_edge(1) = and(~solid_edge(1), ~sat_not_sol_edge(1));
+
     % Calculate the flux at these internal cell edges, between 2...
     q(solid_edge) = 0;                      % ...solid cells (no flux)
     q(sat_not_sol_edge) = qsat(sat_not_sol_edge);    % ...saturated cells NOT IN A SOL-SAT-SOL REGION
@@ -236,7 +246,11 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %% Calculate surface runoff
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   if (3/2)*W(1)-(1/2)*W(2)>=1-pp.tolS1     % if the surface is saturated, we have runoff
+   % Note that the condition used to determine whether there is runoff must
+   % use the same expression for W at the surface as that used to
+   % determine whether the surface is saturated or not when calculating the
+   % flux q
+   if Wsurf>=1-pp.tolS1     % if the surface is saturated (or solid), we have runoff
        roff = Rs + Rr - q(1) - hdot*W(1);   % (we approximate hdot*W at the surface (cell edge) by the value at the cell centre below)
    else
        roff = 0;

@@ -103,7 +103,13 @@ function [Hnew,Wnew,Tnew,phinew,Snew,Tsurfnew,msurfnew,hdotnew] = enthalpy_water
         - dt*(dd.Dflux*(pp.khat*spdiags(W_hm,0,dd.N+1,dd.N+1)*dd.Dcentre*(no_ice)*pp.Stefan...
         +pp.Upsilon*F...
         +pp.Stefan*k.*krw.*unsatedge + pp.Stefan*q.*(1-unsatedge))...
-        + pp.Stefan*pp.Kd*pp.K.*pp.perm(phi).*pp.krw(S));           % lateral drainage - DON'T USE k and krw here, use pp.perm, pp.krw
+        + pp.Stefan*pp.Kd*pp.K.*pp.perm(phi).*pp.krw(S));           % lateral drainage
+
+    % Note that the water flux term q is including implicitly (in terms of
+    % H, expressing S = H/(phi*Stefan)) on edges that were between 2
+    % unsaturated cells in the previous ITERATION (marked by the unsatedge
+    % flag). Elsewhere, the flux q is included explicitly (using the
+    % solution from the previous TIMESTEP).
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Finish implement BCs (parts to be done after writing down linear 

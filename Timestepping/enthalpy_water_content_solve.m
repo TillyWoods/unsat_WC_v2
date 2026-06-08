@@ -42,7 +42,7 @@ function [Hnew,Wnew,Tnew,phinew,Snew,Tsurfnew,msurfnew,hdotnew] = enthalpy_water
     S_edge = [S(1);S];              % ...upwinding for S
 
     k = pp.K*pp.perm(phi_edge);       % permeability from previous iteration (probably phi^3)
-    krw = pp.rel_perm(S_edge);        % relative permeability from previous iteration (probably S^3)
+    krw = pp.krw(S_edge);        % relative permeability from previous iteration (probably S^3)
     k(1) = 0;           % part of implementing the q = Rs+Rr-W*hdot at Z=0 BC
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

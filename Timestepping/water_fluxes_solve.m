@@ -163,13 +163,13 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     qsat = k.*(1-Dcentre*pw); 
 
     % Flux in unsaturated regions, in terms of S (and phi)
-    krw = pp.rel_perm(S_edge);                   % relative permeability
+    krw = pp.krw(S_edge);                   % relative permeability
     qunsat = k.*(krw-(2/pp.B)*dd.Dcentre*S);    
     qunsat(1) = Rs+Rr-W(1)*hdot;    % to satisfy (saturated) surface BC
 
     % If the saturation is below a tolerance, set the flux to zero -
     % NEEDED?
-    qunsat(S_hm<pp.tolS0) = 0;
+    qunsat(harmonic_mean(S)<pp.tolS0) = 0;
     
     % Identify edges that lie within one region (i.e. same type of cell on
     % both sides)

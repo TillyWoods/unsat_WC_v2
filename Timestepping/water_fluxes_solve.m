@@ -182,7 +182,7 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     % to those extrapolated values.
     Wsurf = (3/2)*W(1) - (1/2)*W(2);            % linear extrapolation
     phi_surf = (3/2)*phi(1) - (1/2)*phi(2);     % linear extrapolation
-    solid_edge(1) = phi_surf <= 1-tolphi0;
+    solid_edge(1) = phi_surf <= tolphi0;
     sat_not_sol_edge(1) = and(~solid_edge(1), Wsurf >= 1-tolS1);
     unsatd_edge(1) = and(~solid_edge(1), ~sat_not_sol_edge(1));
 

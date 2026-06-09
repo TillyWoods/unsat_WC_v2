@@ -204,7 +204,7 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
             Zbot = dd.Zedge(botind(i)+1);   % edge at bottom
             Ztop = dd.Zedge(topind(i));     % edge at top
             Zspan = [Zbot,Ztop];
-            odefunc = @(Z,q) -pp.Kd*interp1(dd.Z,pp.perm(phi),Z);    % dq/dZ = -qd = -Kd*phi^3 in sat region
+            odefunc = @(Z,q) -pp.Kd*pp.K*interp1(dd.Z,pp.perm(phi),Z);    % dq/dZ = -qd = -Kd*K*phi^3 in sat region
             q0 = 0;     % no flux at the bottom of the sol-sat-sol region
             [Zout,qout] = ode15s(odefunc,Zspan,q0);
             q(topind(i):botind(i)+1) = interp1(Zout,qout,dd.Zedge(topind(i):botind(i)+1));   % interpolate onto cell edges
@@ -253,6 +253,13 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
    if Wsurf>=1-pp.tolS1     % if the surface is saturated (or solid), we have runoff
        roff = Rs + Rr - q(1) - hdot*W(1);   % (we approximate hdot*W at the surface (cell edge) by the value at the cell centre below)
    else
+       roff = 0;
+   end
+
+   % If negative runoff is calculated (wrongly assumed saturated surface),
+   % set runoff to zero and change surface flux to unsat value
+   if roff < 0
+       q(1) = qunsat(1);
        roff = 0;
    end
 

@@ -32,6 +32,7 @@ to_plot = zeros(np,1);
 for i=1:np
     to_plot(i) = find(t>=plot_times(i),1);
 end
+to_plot = length(ss)-[5,4,3,2,1,0];
 plot_every = 1;     % plot every 'plot_every' of the plot_times times in the main figure - plot all in inset up to time 'inset_end'
 inset_end = plot_times(end);     % final time to plot in the inset
 

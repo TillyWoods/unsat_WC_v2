@@ -1,4 +1,4 @@
-function ss = full_timestep(ss_old,Qsi,Q0,Tinf,Rs,Rr,nu,pp,dd,dt)
+function ss = REDUNDANT_full_timestep(ss_old,Qsi,Q0,Tinf,Rs,Rr,nu,pp,dd,dt)
     
     %% Different versions of the code are changed between here!
     

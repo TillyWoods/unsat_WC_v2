@@ -22,8 +22,8 @@ function ss = analytical_steadily_melting(Qsi,Q0,Tinf,pp,dd)
     
     % Internal radiation
     ss.F = Qsi*(1-pp.a)*(1-pp.chi).*exp(-pp.kappa*dd.Zedge);
-    ss.Fplus = pp.a*Qsi*exp(-pp.kappa*dd.Zedge);
-    ss.Fminus = (1-pp.chi*(1-pp.a))*Qsi*exp(-pp.kappa*dd.Zedge);
+    %ss.Fplus = pp.a*Qsi*exp(-pp.kappa*dd.Zedge);
+    %ss.Fminus = (1-pp.chi*(1-pp.a))*Qsi*exp(-pp.kappa*dd.Zedge);
     
     % Porosity
     ss.phi = (1 + (1/ss.hdot)*(ss.msurf+(pp.Upsilon*Qsi*(1-pp.a)*(1-pp.chi)/pp.Stefan)*(1-exp(-pp.kappa*dd.Z))))...

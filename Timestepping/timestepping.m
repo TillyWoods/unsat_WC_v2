@@ -49,8 +49,6 @@ function ss = timestepping(ss0,pp,dd,tspan)
     ss_step.Tinf = pp.Tinf;
     ss_step.Rs = pp.Rs(t);
     ss_step.Rr = pp.Rr(t);
-    ss_step.alpha = pp.alpha0;
-    ss_step.r = pp.r0;
     ss_step.nu = pp.nuhat(t);
 
     ss_step.msurf_cum = 0;      % cumulative surface melt (ADDED 29/01/2024)
@@ -88,12 +86,10 @@ function ss = timestepping(ss0,pp,dd,tspan)
         Q0 = pp.Q0(t);
         Rs = pp.Rs(t);
         Rr = pp.Rr(t);
-        alpha = @(phi,S) pp.alpha(phi,S,t);
-        r = @(phi,S) pp.r(phi,S,t);
         nu = pp.nuhat(t);
         
         % Carry out timestepping
-        ss_step = full_timestep(ss_step,Qsi,Q0,pp.Tinf,Rs,Rr,alpha,r,nu,pp,dd,dt);
+        ss_step = full_timestep(ss_step,Qsi,Q0,pp.Tinf,Rs,Rr,nu,pp,dd,dt);
         if debug_print == 1
             fprintf([newline,'t = ',num2str(t),newline])
         end

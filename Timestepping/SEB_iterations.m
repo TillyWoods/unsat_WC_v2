@@ -1,4 +1,4 @@
-function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = SEB_iterations(ss_old,alpha0,r0,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
+function [H,W,T,phi,S,F,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = SEB_iterations(ss_old,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
 % Iterate the full enthalpy, water content annd water fluxes solutions
 % until the correct (i.e. consistent) surface energy balance is reached.
 % (If the assumed SEB works (unless msurf = 0 or Tsurf = 0), stick with it.
@@ -14,25 +14,17 @@ melt = meltold;
 Hflagold = ss_old.Hflag;
 unsatedgeold = ss_old.unsatedge;
 
-%% Solve for F (using phi, S from the previous timestep, if applicable)
-% The internal shortwave radiation F is 
+%% Calculate internal shortwave radiation F
+% This is done once each timestep, for the given value of incoming
+% shortwave radiation Qsi at that timestep.
+% (This could be modified to allow for radiative transfer properties that
+% also evolve over time).
 
-kappa = sqrt(alpha0^2+2*alpha0*r0);
-a0 = (1-pp.chi)*(kappa-alpha0)/((1-pp.chi)*kappa+(1+pp.chi)*alpha0);
-if pp.chi==1
-        Fminus = zeros(size(dd.Zedge));
-        Fplus = zeros(size(dd.Zedge));
-else
-    Fminus = (1-pp.chi*(1-a0))*Qsi*exp(-kappa*dd.Zedge);
-    Fplus = a0*Qsi*exp(-kappa*dd.Zedge);
-end
+kappa = pp.kappa;       % extinction coefficient
+a = pp.a;               % albedo
+chi = pp.chi;           % shortwave partitioning parameter
 
-F = Fminus - Fplus;
-a = a0;
-% a = (Fplus(1)/Qsi);
-% a(Qsi==0) = a; %pp.a;   % if Qsi=0 (in which case F=0), set a to be the default value
-
-
+F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
 
  %% Step 1: carry out the timestep...
     % ... assuming that the melt and enthlapy flags are that of the

@@ -1,4 +1,4 @@
-function ss = full_timestep(ss_old,Qsi,Q0,Tinf,Rs,Rr,alpha,r,nu,pp,dd,dt)
+function ss = full_timestep(ss_old,Qsi,Q0,Tinf,Rs,Rr,nu,pp,dd,dt)
     
     %% Different versions of the code are changed between here!
     
@@ -12,8 +12,8 @@ function ss = full_timestep(ss_old,Qsi,Q0,Tinf,Rs,Rr,alpha,r,nu,pp,dd,dt)
     % the start of each timestep (using phi, S from the previous timestep
     % if alpha and r are functions of these, but I only ever make them
     % functions of time at the moment)
-    [ss.H,ss.W,ss.T,ss.phi,ss.S,ss.F,ss.Fplus,ss.Fminus,ss.a,ss.Tsurf,...
-        ss.msurf,ss.hdot,ss.pw,ss.q,ss.roff,ss.unsatedge,ss.Hflag,ss.melt] = SEB_iterations(ss_old,alpha,r,Rs,Rr,Qsi,Q0,nu,Tinf,dd,pp,dt);
+    [ss.H,ss.W,ss.T,ss.phi,ss.S,ss.F,ss.a,ss.Tsurf,...
+        ss.msurf,ss.hdot,ss.pw,ss.q,ss.roff,ss.unsatedge,ss.Hflag,ss.melt] = SEB_iterations(ss_old,Rs,Rr,Qsi,Q0,nu,Tinf,dd,pp,dt);
 
     ss.mint = (ss.phi-ss_old.phi)/dt + dd.Dflux*(dd.cell_below*min(ss.hdot,0)+dd.cell_above*max(ss.hdot,0))*ss.phi;    % internal melt rate     % EXTRA hdot (INCORRECT!) REMOVED 08/04/2024
     % ss.Zm = dd.Z(find(ss.phi>0,1,'last'));          % last entry of Z that is non-zero (i.e. phi=0 everywhere below)
@@ -46,7 +46,5 @@ function ss = full_timestep(ss_old,Qsi,Q0,Tinf,Rs,Rr,alpha,r,nu,pp,dd,dt)
     ss.Tinf = Tinf;
     ss.Rs = Rs;
     ss.Rr = Rr;
-    ss.alpha = alpha(ss.phi,ss.S);
-    ss.r = r(ss.phi,ss.S);
     ss.nu = nu;
 end

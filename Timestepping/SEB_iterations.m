@@ -1,18 +1,19 @@
 function ss = SEB_iterations(ss_old,Qsi,Q0,Tinf,Rs,Rr,nu,pp,dd,dt)
-% Iterate the full enthalpy, water content annd water fluxes solutions
-% until the correct (i.e. consistent) surface energy balance is reached.
+% Carry out one complete timestep. This is done by iterating the full 
+% enthalpy, water content and water fluxes solution until the correct 
+% (i.e. consistent) surface energy balance is reached.
 % (If the assumed SEB works (unless msurf = 0 or Tsurf = 0), stick with it.
 % If not (i.e. if we get negative or zero surface melt, or positive or zero
 % surface temperature), try the other case. If neither work (hopefully 
 % never the case) or both work, keep the second attempt.)
 
-
 debug_print = 0;    % Set to 1 to print debugging output
 
-meltold = ss_old.melt;
+% Values of flags from previous timestep
+meltold = ss_old.melt;              % melt flag
 melt = meltold;
-Hflagold = ss_old.Hflag;
-unsatedgeold = ss_old.unsatedge;
+Hflagold = ss_old.Hflag;            % enthalpy flag
+unsatedgeold = ss_old.unsatedge;    % unsat flag
 
 %% Calculate internal shortwave radiation F
 % This is done once each timestep, for the given value of incoming
@@ -38,18 +39,8 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
     % Keep the solutions calculated up until this point so that we can
     % revert to them if we try the other SEB option (melt flag) but find 
     % that that doesn't work.
-    Hmid = H;
-    msurfmid = msurf;
-    Tsurfmid = Tsurf;
-    Wmid = W;
-    Tmid = T;
-    phimid = phi;
-    Smid = S;
-    hdotmid = hdot;
-    pwmid = pw;
-    qmid = q;
-    roffmid = roff;
-   
+    [Hmid,msurfmid,Tsurfmid,Wmid,Tmid,phimid,Smid,hdotmid,pwmid,....
+        qmid,roffmid] = set_vals(H,msurf,Tsurf,W,T,phi,S,hdot,pw,q,roff);
 
     %% Step 2: switch surface BC if necessary (and then redo the timestepping)
     % (ie. if we assumed surface melting and got msurf<=0 or if we 
@@ -65,69 +56,65 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
     % Again, the enthalpy flag and unsat flag are iterated until they are
     % correct (or until a max number of iterations is reached).
 
-    if and(meltold==1,msurf<=0)        % If melt was assumed but we calculated a negative or 0 melt rate...
+    % CASE 1: If melt was assumed but we calculated a negative or 0 melt rate...
+    if and(meltold==1,msurf<=0)
+        % ... redo the timestep assuming no melt.
+        melt = 0;
+        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
+        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);
+
         if debug_print == 1
             fprintf([newline,'Swicth to no melt BC (first switch).',newline])
         end
-        melt = 0;
-        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
-        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming no melt.
         
-        if Tsurf>0      % If the new assumption of no melt was also incorrect (Tsurf>0)...
+        % If the new assumption of no melt was also incorrect (Tsurf>0)...
+        if Tsurf>0 
             % ... switch back to the original SEB option.
             melt = 1;
-            H = Hmid;
-            msurf = msurfmid;
-            Tsurf = Tsurfmid;
-            W = Wmid;
-            T = Tmid;
-            phi = phimid;
-            S = Smid;
-            hdot = hdotmid;
-            pw = pwmid;
-            q = qmid;
-            roff = roffmid;
+            [H,msurf,Tsurf,W,T,phi,S,hdot,pw,q,roff] = set_vals...
+                (Hmid,msurfmid,Tsurfmid,Wmid,Tmid,phimid,Smid,hdotmid,pwmid,qmid,roffmid);
+
             if debug_print == 1
                 fprintf([newline,'Revert to melt BC.',newline])
             end
-            if msurf<0      % If both melt flags give unphysical solutions, keep the second attempt as the solution and set msurf=0.
+
+            % If both melt flags give unphysical solutions, keep the second attempt as the solution and set msurf=0.
+            if msurf<0      
+                msurf = 0;
+
                 if debug_print == 1
                     fprintf([newline,'PROBLEM! Both BCs are unphysical. msurf = ',num2str(msurf),newline]);
                 end
-                msurf = 0;
             end
         end
             
-    elseif and(meltold==0,Tsurf>=0)    % If no melt was assumed but we calculated a positive or 0 surface temp...
+    % CASE 2: If no melt was assumed but we calculated a positive or 0 surface temp...
+    elseif and(meltold==0,Tsurf>=0)
+        % ... redo the timestep assuming melt.
+        melt = 1;
+        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
+        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);
+
         if debug_print == 1
             fprintf([newline,'Swicth to melt BC (first switch).',newline])
         end
-            melt = 1;
-        [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
-        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming melt.
-
-        if msurf<0      % If the new assumption of melt was also incorrect (msurf<0)...
+        
+        % If the new assumption of melt was also incorrect (msurf<0)...
+        if msurf<0      
             % ... switch back to the original SEB option.
             melt = 0;
-            H = Hmid;
-            msurf = msurfmid;
-            Tsurf = Tsurfmid;
-            W = Wmid;
-            T = Tmid;
-            phi = phimid;
-            S = Smid;
-            hdot = hdotmid;
-            pw = pwmid;
-            q = qmid;
-            roff = roffmid;
+            [H,msurf,Tsurf,W,T,phi,S,hdot,pw,q,roff] = set_vals...
+                (Hmid,msurfmid,Tsurfmid,Wmid,Tmid,phimid,Smid,hdotmid,pwmid,qmid,roffmid);
+
             if debug_print == 1
                 fprintf([newline,'Revert to no melt BC.',newline])
             end
             if Tsurf>0  % If both melt flags give unphysical solutions, keep the second attempt as the solution and set Tsurf=0.
+                Tsurf = 0;
+
                 if debug_print == 1
                     fprintf([newline,'PROBLEM! Both BCs are unphysical. Tsurf = ',num2str(Tsurf),newline]);
                 end
-                Tsurf = 0;
             end
         end
     end
@@ -161,5 +148,20 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
     % Subsurface melt and freezing, weathering crust thickness, cumulative
     % surface and subsurface melt and runoff components etc.
     ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt);
+
+    function [H2,msurf2,Tsurf2,W2,T2,phi2,S2,hdot2,pw2,q2,roff2] = set_vals(H1,msurf1,Tsurf1,W1,T1,phi1,S1,hdot1,pw1,q1,roff1)
+        % Sets the output variables to be equal to the input variables
+        H2 = H1;
+        msurf2 = msurf1;
+        Tsurf2 = Tsurf1;
+        W2 = W1;
+        T2 = T1;
+        phi2 = phi1;
+        S2 = S1;
+        hdot2 = hdot1;
+        pw2 = pw1;
+        q2 = q1;
+        roff2 = roff1;
+    end
 
 end

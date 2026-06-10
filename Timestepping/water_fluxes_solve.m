@@ -82,8 +82,9 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
         % above it. If so, this is a solid-sat-solid region.
         for ii = 1:length(sat_sol_ind)      % for each possible bottom of sol-sat-sol region...  
             ibot = sat_sol_ind(ii);
-            itop = find(sol_sat_ind<ibot,1,'first');    % ...find the first possible top of a solo-sat-sol region above it
-            if ~isempty(itop)
+            itopind = find(sol_sat_ind<ibot,1,'first');    % ...find the first possible top of a solo-sat-sol region above it
+            if ~isempty(itopind)
+                itop = sol_sat_ind(itopind);
                 if sum((sat(itop:ibot-1)==1))==ibot-itop   % if all the cells between the solid edges are saturated
                     sol_sat_sol(itop:ibot-1)=1;            % set logical identifying solid-sat-solid regions to 1
                 end

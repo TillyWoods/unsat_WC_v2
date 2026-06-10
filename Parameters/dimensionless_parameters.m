@@ -27,19 +27,6 @@ function pp = dimensionless_parameters(dim,scale)
     pp.tolphi0 = dim.tolphi0;       % (13/5/24) set phi = 0 when phi <= tolphi
     pp.tolS0 = dim.tolS0;           % (13/5/24) set S = 0 when S <= tolS0
     pp.tolS1 = dim.tolS1;           % (13/5/24) set S = 1 when S >= 1-tolS1
-
-    % Microbes and nutrients (22/02/2023)
-    pp.kappaF = dim.kPAR./(dim.alphaPAR.*scale.F);
-    pp.kappaC = dim.kC/scale.Cw;
-    pp.GA = dim.betaA.*scale.t;
-    pp.GC = dim.betaC.*scale.t.*scale.Aw./scale.Cw;
-    pp.deltaw = dim.dw.*scale.t;
-    pp.deltai = dim.di.*scale.t;
-    pp.DA = dim.DA.*scale.t./scale.Z.^2;
-    pp.DC = dim.DC.*scale.t./scale.Z.^2;
-    
-    pp.Aiinf = dim.Aiinf/scale.Ai;
-    pp.Ciinf = dim.Ciinf./scale.Ci;
     
     %% Forcings - most as functions of dimensionless time
     pp.Tinf = dim.Tinf/scale.T;                     % ice temperature at depth

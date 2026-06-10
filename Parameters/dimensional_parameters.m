@@ -39,21 +39,6 @@ function dim = dimensional_parameters()
     
     dim.perm = @(phi) dim.k0*phi.^3;                         % m^2 (permeability function k(phi))
     dim.krw = @(S) S.^3;                                    % dimless (relative permeability function krw(S))
-
-    % Microbe and nutrient parameters (22/02/2023) (using mL, NOT L)
-    dim.betaA = 5/dim.td; %1/dim.td;          % microbial growth rate (d^-1)
-    dim.betaC = 1e-6/dim.td; %1e-5/dim.td;       % rate of consumption of nutrients (micro mol cell^-1 d^-1, 1e-6 in paper)
-    dim.alphaPAR = 0.56;    % proportion of solar radiation which is PAR [Jorgensen2001 0.56]
-    dim.kPAR = 100;         % saturation radiation (W m^-2) [??]
-    dim.kC = 1e-3; %1;             % saturation concentration of nutrients (units m^-3 - > micro mol mL^-1 on 30/07/2024)
-    dim.DA = 0;             % microbe diffusion in water
-    dim.DC = 0;             % nutrient diffusion in water
-    dim.Amax = 10^4;        % maxiumum microbial abundance (cells mL^-1) [Christner2018 10^4]  - updated from 1 units/m^3 on 19/05/2022
-    dim.dw = 1e-2/dim.td;          % death rate (water microbes) (d^-1)
-    dim.di = 0;             % death rate (ice microbes) (d^-1)
-
-    dim.Ciinf = 1e-3; %1;              % nutrient concentration at depth (micro mol L^-1 -> updated to micro mol mL^-1 on 30/07/2024) - updated from 1 unit/m^3 on 19/05/2022
-    dim.Aiinf = 0.01*dim.Amax;  % microbial abundance at depth (cells mL^-1) - updated from 0.5 units/m^3 on 19/05/2022
     
     %% Forcings - most are functions of time (in seconds)
     dim.Qsi = @(t) 200*cos(2*pi*t/dim.td);      % W m^-2 (incoming shortwave radiation)

@@ -1,4 +1,4 @@
-function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = SEB_iterations(ss_old,alpha,r,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
+function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = SEB_iterations(ss_old,alpha0,r0,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
 % Iterate the full enthalpy, water content annd water fluxes solutions
 % until the correct (i.e. consistent) surface energy balance is reached.
 % (If the assumed SEB works (unless msurf = 0 or Tsurf = 0), stick with it.
@@ -6,8 +6,6 @@ function [H,W,T,phi,S,F,Fplus,Fminus,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hfla
 % surface temperature), try the other case. If neither work (hopefully 
 % never the case) or both work, keep the second attempt.)
 
-% 26-08-2024 - modified to calculate F once at the start of each timestep,
-% rather than inside iterations
 
 debug_print = 0;    % Set to 1 to print debugging output
 
@@ -17,15 +15,8 @@ Hflagold = ss_old.Hflag;
 unsatedgeold = ss_old.unsatedge;
 
 %% Solve for F (using phi, S from the previous timestep, if applicable)
-% phihm = harmonic_mean(ss_old.phi);
-% Shm = harmonic_mean(ss_old.S);
-% [Fplusnew,Fminusnew] = F_solve_second_order(Qsi,alpha(phihm,Shm),r(phihm,Shm),pp.chi,dd);
-% a = pp.a;
+% The internal shortwave radiation F is 
 
-alpha0 = alpha(1,1);
-alpha0 = alpha0(1);
-r0 = r(1,1);
-r0 = r0(1);
 kappa = sqrt(alpha0^2+2*alpha0*r0);
 a0 = (1-pp.chi)*(kappa-alpha0)/((1-pp.chi)*kappa+(1+pp.chi)*alpha0);
 if pp.chi==1

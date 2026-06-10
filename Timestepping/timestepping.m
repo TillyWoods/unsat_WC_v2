@@ -89,7 +89,7 @@ function ss = timestepping(ss0,pp,dd,tspan)
         nu = pp.nuhat(t);
         
         % Carry out timestepping
-        ss_step = full_timestep(ss_step,Qsi,Q0,pp.Tinf,Rs,Rr,nu,pp,dd,dt);
+        ss_step = SEB_iterations(ss_step,Qsi,Q0,pp.Tinf,Rs,Rr,nu,pp,dd,dt);
         if debug_print == 1
             fprintf([newline,'t = ',num2str(t),newline])
         end

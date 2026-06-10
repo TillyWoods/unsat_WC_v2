@@ -1,4 +1,4 @@
-function [H,W,T,phi,S,F,a,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag,melt] = SEB_iterations(ss_old,Rs,Rr,Qsi,Q0,nuhat,Tinf,dd,pp,dt)
+function ss = SEB_iterations(ss_old,Qsi,Q0,Tinf,Rs,Rr,nu,pp,dd,dt)
 % Iterate the full enthalpy, water content annd water fluxes solutions
 % until the correct (i.e. consistent) surface energy balance is reached.
 % (If the assumed SEB works (unless msurf = 0 or Tsurf = 0), stick with it.
@@ -29,12 +29,11 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
  %% Step 1: carry out the timestep...
     % ... assuming that the melt and enthlapy flags are that of the
     % previous timestep.
-    % NOTE: within this, the a number (probably 10 - see function below to 
-    % be sure) of iterations are carried out in which the enthalpy flag is 
-    % updated each time if it was incorrectly assumed. The iterations stop 
-    % if the enthalpy flag is correct.
+    % NOTE: within this, the a number of iterations are carried out in 
+    % which the enthalpy flag and unsat flag are updated each time if they
+    % were incorrectly assumed. The iterations stop if both flags are correct.
     [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
-        (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,meltold,unsatedgeold,dd,pp,dt);
+        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,meltold,unsatedgeold,dd,pp,dt);
 
     % Keep the solutions calculated up until this point so that we can
     % revert to them if we try the other SEB option (melt flag) but find 
@@ -63,10 +62,8 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
     % getting 'stuck' in a melt or no melt state when really it wants
     % to switch.
     %
-    % Again, the enthalpy flag is iterated until it is correct (or until a
-    % max number of iterations is reached).
-
-    Tsurftol = 1e-5;
+    % Again, the enthalpy flag and unsat flag are iterated until they are
+    % correct (or until a max number of iterations is reached).
 
     if and(meltold==1,msurf<=0)        % If melt was assumed but we calculated a negative or 0 melt rate...
         if debug_print == 1
@@ -74,7 +71,7 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
         end
         melt = 0;
         [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
-        (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming no melt.
+        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming no melt.
         
         if Tsurf>0      % If the new assumption of no melt was also incorrect (Tsurf>0)...
             % ... switch back to the original SEB option.
@@ -107,7 +104,7 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
         end
             melt = 1;
         [H,W,T,phi,S,Tsurf,msurf,hdot,pw,q,roff,unsatedge,Hflag] = enthalpy_unsat_flags_iterations...
-        (ss_old,a,F,Rs,Rr,Qsi,Q0,nuhat,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming melt.
+        (ss_old,a,F,Rs,Rr,Qsi,Q0,nu,Tinf,Hflagold,melt,unsatedgeold,dd,pp,dt);    % ... redo the timestep assuming melt.
 
         if msurf<0      % If the new assumption of melt was also incorrect (msurf<0)...
             % ... switch back to the original SEB option.
@@ -134,3 +131,35 @@ F = (1-chi)*(1-a)*Qsi*exp(-kappa*dd.Zedge);
             end
         end
     end
+
+    %% Save variables and useful forcings into solution structure
+    ss.H = H;           % enthalpy
+    ss.msurf = msurf;   % surface melt rate
+    ss.Tsurf = Tsurf;   % surface temperature
+    ss.W = W;           % total water content  
+    ss.T = T;           % temperature
+    ss.phi = phi;       % porosity
+    ss.S = S;           % saturation
+    ss.hdot = hdot;     % rate of change of surface height
+    ss.pw = pw;         % water pressure
+    ss.q = q;           % water flux (downward)
+    ss.roff = roff;     % surface runoff
+    ss.melt = melt;     % melt flag
+    ss.Hflag = Hflag;   % enthalpy flag
+    ss.unsatedge = unsatedge;   % unsat flag
+    ss.F = F;           % subsurface shortwave radiation
+
+    % Forcings
+    ss.Qsi = Qsi;       % incoming shortwave radiation
+    ss.Q0 = Q0;         % longwave radiation and turbulent heat fluxes
+    ss.Tinf = Tinf;     % temperature at depth
+    ss.Rs = Rs;         % snowfall rate
+    ss.Rr = Rr;         % rainfall rate
+    ss.nu = nu;         % effective heat transfer coefficient
+
+    %% Calculate post-processing quantities
+    % Subsurface melt and freezing, weathering crust thickness, cumulative
+    % surface and subsurface melt and runoff components etc.
+    ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt);
+
+end

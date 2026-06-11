@@ -109,7 +109,7 @@ removal_total = runoff_total + freezeZ_cum;
 net = melt_total - removal_total;      % net mass production - should be zero at end of period
 
 %% Melt and runoff components over time (one period)
-figure(6)
+figure(8)
 set(gcf,'PaperPositionMode','auto','Units','centimeters','position',[4 4 14 6])
 clf
 box on

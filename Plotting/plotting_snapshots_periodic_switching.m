@@ -26,7 +26,7 @@ tend = t(end) - tshift - period + 62; %31;
 spacing = 1; %0.0001; %0.5; %2; 
 % plot_times = t(end) - tshift - period + 0.001+ [22,22.4,22.8,23,24,25];%[tstart:spacing:tend]; % [40:1:45]; %[10,11,14,20,32]; %[[tstart:spacing:tend],t(end)];
 % plot_times = [tstart:spacing:tend];
-plot_times = t(end) - tshift - period + 0.001+ [22:0.1:22.5]; %[22,24,26,28,30]; %[44,45,45.5,46,48,51];
+plot_times = t(end) - tshift - period + 0.001+ [4.7:0.1:5.2]; %[22:0.1:22.5]; %[22,24,26,28,30]; %[44,45,45.5,46,48,51];
 np = length(plot_times);
 to_plot = zeros(np,1);
 for i=1:np
@@ -65,8 +65,8 @@ box on
 hold on
 % grid on
 set(gca,'YDir','reverse')
-ylim([0,0.08])
-xlim([-1,1]) %xlim([-0.1,1.2]) %([-0.1,2.3]) %xlim([0,1.1])
+ylim([0,0.5])
+xlim([-0.1,0.3]) %xlim([-0.1,1.2]) %([-0.1,2.3]) %xlim([0,1.1])
 i = to_plot(j);
 p1 = plot(ss(i).phi*5,dd.Z,'color',phicol,'displayname','$\phi \times 5$','marker','x');
 p2 = plot(ss(i).S,dd.Z,'color',Scol,'displayname','$S$');

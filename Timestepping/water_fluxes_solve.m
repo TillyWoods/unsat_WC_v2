@@ -252,7 +252,7 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
    % determine whether the surface is saturated or not when calculating the
    % flux q
    if Wsurf>=1-pp.tolS1     % if the surface is saturated (or solid), we have runoff
-       roff = Rs + Rr - q(1) - hdot*W(1);   % (we approximate hdot*W at the surface (cell edge) by the value at the cell centre below)
+       roff = Rs + Rr - q(1) - hdot;   % hdot*W = hdot when the surface is saturated or solid)
    else
        roff = 0;
    end

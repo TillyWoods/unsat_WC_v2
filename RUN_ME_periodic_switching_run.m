@@ -12,7 +12,7 @@
 %%
 addpath(genpath('.'))   % Add all subfolders to path
 
-Kd_vals = 0; %[20,0];
+Kd_vals = [20,0];
 
 % Use no drainage solution after 10 periods as initial condition, if the
 % logical below is set to 1 (added 14/08/2025). Otherwise, use steadily
@@ -29,11 +29,11 @@ for i = 1:length(Kd_vals)
 Kd = Kd_vals(i);
 % Use smaller timesteps if water flow is allowed
 if Kd == 0
-    dt = 1e-2; %0.25*1e-3;
-    gap = 10;
+    dt = 0.5*0.25*1e-3; % 1e-2;
+    gap = 2*4*1e2; %10;
 else
-    dt = 0.25*1e-3;
-    gap = 4*1e2;
+    dt = 0.5*0.25*1e-3;
+    gap = 2*4*1e2;
 end
 
 %%% Discretisation
@@ -83,6 +83,7 @@ pp.Kd = Kd;
 % pp.B = 1e4;
 
 pp.tolphi0 = 1e-4;
+pp.tolS1 = 1e-3;
 
 %%% Initial condition
 if use_10period_init==1

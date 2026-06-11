@@ -6,7 +6,7 @@ function dd = discretise_isothermal()
 % Discretisation
 Zend = 100;         % size of domain
 Zfine = 4;          % size of fine domain near the surface
-dZedgeF = 0.01;     % grid size is fine part of domain
+dZedgeF = 0.0025; %0.01;     % grid size is fine part of domain
 dZedgeC = 1e-1;     % grid size in coarse part of domain
 NT = 10;            % number of grid cells in which to linearly transition between fine and coarse mesh
 Zedge = nonuniform_Zedge(Zend,Zfine,dZedgeF,dZedgeC,NT);

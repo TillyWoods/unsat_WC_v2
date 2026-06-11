@@ -13,10 +13,4 @@ function scale = scalings(dim)
     scale.q = scale.Z/scale.t;                          % water flux scale (m s^-1)
     scale.pw = dim.rho*dim.g*scale.Z;                   % pressure scale (Pa)
     scale.mint = dim.rho/scale.t;                       % internal melting scale (kg m^-3 s^-1)
-
-    % Microbes and nutrients (22/02/2023)
-    scale.Aw = dim.Amax;
-    scale.Ai = dim.Amax;
-    scale.Cw = dim.Ciinf;              % (micro mol L^-1) water nutrient concentration scale (NO LONGER chosen so kappaw=1)
-    scale.Ci = scale.Cw; 
 end

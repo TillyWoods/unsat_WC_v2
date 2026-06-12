@@ -114,7 +114,7 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
                     ss_save = ss(save_ind);
                     
                     % save(["wc_periodic_switch_"+runname+"_part_"+num2str(part)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
-                    save(["wc_periodic_switch_"+runname+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
+                    save(["Outputs/wc_periodic_switch_"+runname+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
                     
                     % Add another period to savetime so that we don't save
                     % any more solutions until another period has passed

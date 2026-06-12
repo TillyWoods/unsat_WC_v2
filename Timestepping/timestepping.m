@@ -16,7 +16,7 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     periodic_tol = dd.periodic_tol;     % tolerance used to determine periodic state (percentage error (old-new)/new): 0.01 means 1% error)
 
     % Decide how often to output the solution (i.e. save as .mat)
-    save_period = 60;           % output every save_period time
+    save_period = 1;           % output every save_period time
     savetime = save_period;     % will be updated every output to give the time for the next output
     part = 0;                   % counter for number part of solution we're saving as we go
 

@@ -12,43 +12,15 @@ set(0,'DefaultLineLineWidth',1)
 shift = 0; %20;%5;
 trange = @(t) and(t<=t(end)-shift,t>t(end)-60-shift);
 
-% Drainage (Kd=3)
-% load("wc_periodic_switch_Kd_3_30-May-2025_13_41_39.mat")
-% load("wc_periodic_switch_Kd_3_18-Aug-2025_15_54_56.mat")    % additional 10 periods on top of the first 10 NO DRAINAGE periods (below)
-% load("wc_periodic_switch_Kd_3_19-Aug-2025_13_04_20.mat")    % additional 3 periods on top of the first 10 NO DRAINAGE periods (below), saving 40 more timesteps than the additional 10
-% load("wc_periodic_switch_Kd_3_19-Aug-2025_14_49_35.mat")    % WRONG!!!!!!!! an extra additional 3 periods on top again
-% load("wc_periodic_switch_Kd_3_19-Aug-2025_16_57_05.mat")    % WRONG!!!!! an extra additional 4 periods on top again (so 10 sat + 10 unsat total)
-% load("wc_periodic_switch_Kd_3_25-Aug-2025_10_27_51.mat")        % final 4 periods of 20 periods drainage (drainage timestep size)
-% load("wc_periodic_switch_Kd_10_02-Oct-2025_10periods.mat")
-% load("wc_periodic_switch_Kd_10_02-Oct-2025_periods11-20.mat")
-% load("wc_periodic_switch_Kd_50_02-Oct-2025_10periods.mat")
-% load("wc_periodic_switch_Kd_10_02-Oct-2025_periods21-30.mat")
-% load("wc_periodic_switch_Kd_20_03-Oct-2025_30periods.mat")
-% load("wc_periodic_switch_Kd_50_02-Oct-2025_periods11-30.mat")
-% load("wc_periodic_switch_Kd_10_03-Oct-2025_periods31-40.mat")
-% load("tolS1_tolphi0_1e-3_new_conditions\wc_periodic_switch_Kd_20_tols1e-3_17-Oct-2025_30periods.mat")
-% load("tolS1_tolphi0_1e-3_new_conditions\wc_periodic_switch_Kd_20_tols_1e-3_proper_new_20-Oct-2025_10periods.mat")
-% load("33\wc_periodic_switch_Kd_20_21-Oct-2025_07_02_50.mat")
-% load("33_top_cell\wc_periodic_switch_Kd_20_21-Oct-2025_08_52_54.mat")
-% load("43\wc_periodic_switch_Kd_20_21-Oct-2025_07_02_13.mat")
-% load("43_top_cell_half_dZ\wc_periodic_switch_Kd_20_06-Nov-2025_16_13_39.mat")
-% load("43_top_cell\wc_periodic_switch_Kd_20_24-Oct-2025_21_05_50.mat")
-% load("43_top_cel_half_dt_half_dZ\wc_periodic_switch_Kd_20_06-Nov-2025_22_22_04.mat")
-load("44_top_cell_half_dZ\wc_periodic_switch_Kd_10_06-Nov-2025_23_04_45.mat")
+% Drainage (Kd=20)
+load("../wc_periodic_switch_Kd_20_11-Jun-2026_dZ_0-0025_dt_halved.mat")
 ssd = ss_save;
 t = [ssd.t];
 ssd = ssd(trange(t));
 
 % No drainage (Kd=0)
-% load("wc_periodic_switch_Kd_0_05-Jun-2025_14_13_43_smaller_dt.mat")
-% load("wc_periodic_switch_Kd_0_30-May-2025_12_30_10.mat")  % 4 periods
-% load("wc_periodic_switch_Kd_0_14-Aug-2025_15_59_12.mat")  % 10 periods
-% load("wc_periodic_switch_Kd_0_14-Aug-2025_16_45_18.mat")  % additional 10 periods on top of the first 10
-% load("wc_periodic_switch_Kd_0_19-Aug-2025_11_33_55.mat")  % additional 3 on top of the first 10, saving 40 times more timesteps than the additional 10
-% load("wc_periodic_switch_Kd_0_19-Aug-2025_14_53_17.mat")  % WRONG!!!!!!!! an extra additional 3 on top again
-% load("wc_periodic_switch_Kd_0_19-Aug-2025_15_15_01.mat")  % WRONG!!!!!!!! an extra additional 4 periods on top again (so 20 sat total)
-% load("wc_periodic_switch_Kd_0_21-Aug-2025_12_10_51.mat")  % additional 3 on top of first 10 but with the same small timesteps as with drainage
-load("wc_periodic_switch_Kd_0_26-Aug-2025_04_08_56.mat")    % final 4 periods of 20 periods no drainage (drainage timestep size)
+load("../wc_periodic_switch_Kd_0_11-Jun-2026_dZ_0-0025_dt_halved.mat")
+
 ssnd = ss_save;
 t = [ssnd.t];
 % ssnd = ssnd(t>t(end)-60);

@@ -26,13 +26,13 @@ tend = t(end) - tshift - period + 62; %31;
 spacing = 1; %0.0001; %0.5; %2; 
 % plot_times = t(end) - tshift - period + 0.001+ [22,22.4,22.8,23,24,25];%[tstart:spacing:tend]; % [40:1:45]; %[10,11,14,20,32]; %[[tstart:spacing:tend],t(end)];
 % plot_times = [tstart:spacing:tend];
-plot_times = t(end) - tshift - period + 0.001+ [4.7:0.1:5.2]; %[22:0.1:22.5]; %[22,24,26,28,30]; %[44,45,45.5,46,48,51];
+plot_times = t(end) - tshift - period + 0.001+ [23:0.1:23.5]; %[22,24,26,28,30]; %[44,45,45.5,46,48,51];
 np = length(plot_times);
 to_plot = zeros(np,1);
 for i=1:np
     to_plot(i) = find(t>=plot_times(i),1);
 end
-to_plot = length(ss)-[5,4,3,2,1,0];
+% to_plot = length(ss)-[5,4,3,2,1,0];
 plot_every = 1;     % plot every 'plot_every' of the plot_times times in the main figure - plot all in inset up to time 'inset_end'
 inset_end = plot_times(end);     % final time to plot in the inset
 
@@ -65,13 +65,15 @@ box on
 hold on
 % grid on
 set(gca,'YDir','reverse')
-ylim([0,0.5])
-xlim([-0.1,0.3]) %xlim([-0.1,1.2]) %([-0.1,2.3]) %xlim([0,1.1])
+ylim([0,0.15])
+xlim([-0.4,0.3]) %xlim([-0.1,1.2]) %([-0.1,2.3]) %xlim([0,1.1])
 i = to_plot(j);
-p1 = plot(ss(i).phi*5,dd.Z,'color',phicol,'displayname','$\phi \times 5$','marker','x');
+% p1 = plot(ss(i).phi*5,dd.Z,'color',phicol,'displayname','$\phi \times 5$','marker','x');
+p1 = plot(ss(i).phi,dd.Z,'color',phicol,'displayname','$\phi$','marker','x');
 p2 = plot(ss(i).S,dd.Z,'color',Scol,'displayname','$S$');
 p5 = plot(ss(i).T,dd.Z,'color',Tcol,'displayname','$T$');
-p6 = plot(ss(i).mint,dd.Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}$');
+% p6 = plot(ss(i).mint,dd.Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}$');
+p6 = plot(ss(i).mint/10,dd.Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}/10$');
 p7 = plot((ss(i).phi-ss(i-1).phi)/(ss(i).t-ss(i-1).t),dd.Z,'Color',mintcol,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$','LineStyle','--');
 % p3 = plot(ss(i).q*30,dd.Zedge,'color',qcol,'displayname','$q \times 30$');
 % p4 = plot(ss(i).qd*20,dd.Z,'color',qdcol,'displayname','$q_\mathrm{d} \times 20$');
@@ -100,11 +102,11 @@ end
 end
 linkaxes(ax)
 
-figure
-hold on
-plot(mint_int,'DisplayName','$m_{\mathrm{int}}$')
-plot(phi_diff_dt_int,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$')
-legend('interpreter','latex')
+% figure
+% hold on
+% plot(mint_int,'DisplayName','$m_{\mathrm{int}}$')
+% plot(phi_diff_dt_int,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$')
+% legend('interpreter','latex')
 
 
 

@@ -37,7 +37,7 @@ else
 end
 
 %%% Discretisation
-dd = discretise_isothermal();
+dd = discretise_nonuniform(); %discretise_isothermal();
 dd.plot = 0;
 dd.gap = gap; %1e2; %10;
 dd.dt = dt;

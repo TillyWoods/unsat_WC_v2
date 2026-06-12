@@ -1,4 +1,4 @@
-function ss = timestepping(ss0,pp,dd,tspan)
+function ss = timestepping(ss0,pp,dd,tspan,runname)
     % Carry out the simulation, i.e. do the timestepping until the final
     % time (or another condition) is reached.
 
@@ -15,22 +15,13 @@ function ss = timestepping(ss0,pp,dd,tspan)
     periodic_stop = dd.periodic_stop;   % the size of the period to stop once a periodic state is reached, 0 if not
     periodic_tol = dd.periodic_tol;     % tolerance used to determine periodic state (percentage error (old-new)/new): 0.01 means 1% error)
 
-    % if ind == 1
-    %     tstart = 0;
-    %     tend = 1e10;
-    % else
-    %     tstart = tspan(1);      % start time
-    %     tend = tspan(2);        % end time
-    % end
+    % Decide how often to output the solution (i.e. save as .mat)
+    save_period = 60;           % output every save_period time
+    savetime = save_period;     % will be updated every output to give the time for the next output
+    part = 0;                   % counter for number part of solution we're saving as we go
 
     tstart = tspan(1);      % start time
     tend = tspan(2);        % end time
-
-    % if isstring(tend)==0
-    %     stop_cond = (ss_step.Zm<1e-6);
-    % else
-    %     stop_cond = (t<tend);
-    % end
   
     t = tstart;
     ss_step = ss0;      % initial condition
@@ -112,6 +103,25 @@ function ss = timestepping(ss0,pp,dd,tspan)
             ss_step.Z = dd.Z;             % positions of cell centres
             ss_step.Zedge = dd.Zedge;     % positions of cell edges
             ss(i) = ss_step;
+
+            % Save solution structure every save_period time (if zero, only
+            % save at the end of the run)
+            if save_period > 0
+                if t > savetime
+                    part = part + 1;        % number part of solution that we're saving
+                    save_time = 120; %inf;      % save the last save_time amount of time of data
+                    save_ind = ss(end).t-[ss.t]<save_time;
+                    ss_save = ss(save_ind);
+                    
+                    % save(["wc_periodic_switch_"+runname+"_part_"+num2str(part)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
+                    save(["wc_periodic_switch_"+runname+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
+                    
+                    % Add another period to savetime so that we don't save
+                    % any more solutions until another period has passed
+                    savetime = savetime + save_period;
+                end
+            end
+
 
             % Plot solution
             if dd.plot==1

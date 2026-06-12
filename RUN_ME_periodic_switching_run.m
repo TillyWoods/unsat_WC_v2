@@ -28,7 +28,7 @@ use_10period_init = 0;
 
 
 for i = 1:length(Kd_vals)
-    for j = 1:length(dZfvals)
+    for j = 1:length(dZf_vals)
 
         %%% Saturated or unsaturated?
         Kd = Kd_vals(i);

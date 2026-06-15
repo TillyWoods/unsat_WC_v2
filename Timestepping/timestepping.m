@@ -9,10 +9,6 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     % Setup for simulation and solution storage
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % Option to stop simulation if crust is removed
-    stopZm = dd.stopZm;     % logical, = 1 to stop if crust is removed
-    ind_stop = stopZm;
-
     % Option to stop simulation if a steady state is reached
     steady_stop = dd.steady_stop;       % 1 to stop once a steady state is reached
     steady_tol = dd.steady_tol;         % tolerance used to determine steady state
@@ -32,7 +28,6 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     t = tstart;
 
     j = 0;              % timestep counter
-    crust_gone = 0;     % logical
     
     %%%%%%%%%%%%%%%%%%%%%%
     %% Initial condition
@@ -47,7 +42,7 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     ss_step.Tsurf = (3/2)*ss_step.T(1) - (1/2)*ss_step.T(2);    % surface temperature - linear extrapolation
     ss_step.pw = NaN*dd.Z.^0;               % water pressure
     ss_step.qd = pp.K*pp.Kd*pp.perm(ss_step.phi).*pp.krw(ss_step.S);   % lateral drainage
-    ss_step.j = 0;                          % timestep counter
+    ss_step.j = j;                          % timestep counter
     ss_step.i = 1;                          % saved solution counter
 
     % Prescribed forcings to be outputted
@@ -81,7 +76,7 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     %% Timestepping
     %%%%%%%%%%%%%%%%
     warning('No warning.')
-    while and(t<tend,1) %logical(1-ind_stop*(crust_gone>=dd.gap)))              % if stopZm=1, timestepping stops when Zm<=1-12 for dd.gap timesteps in a row
+    while and(t<tend,1)
         % Set the timestep size using the constant value stored in dd
         dt = dd.dt;
         dt = min(dt,tend-t);    % adjust final timestep to hit end time
@@ -102,8 +97,6 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
         if debug_print == 1
             fprintf([newline,'t = ',num2str(t),newline])
         end
-
-        crust_gone = double(crust_gone) + double((ss_step.Zm-ss_step.Zf)<=1e-12);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Store the timesteps we want to store

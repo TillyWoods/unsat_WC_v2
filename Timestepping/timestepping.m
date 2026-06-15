@@ -1,17 +1,23 @@
 function ss = timestepping(ss0,pp,dd,tspan,runname)
     % Carry out the simulation, i.e. do the timestepping until the final
-    % time (or another condition) is reached.
-
-    % 27th October 2022
+    % time is reached (or another condition, e.g. reaching a stead state,
+    % is met).
 
     debug_print = 0;    % Set to 1 to print debugging output
-    
-    stopZm = dd.stopZm;
-    ind_stop = stopZm; %or(isstring(tspan),ischar(tspan));
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Setup for simulation and solution storage
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % Option to stop simulation if crust is removed
+    stopZm = dd.stopZm;     % logical, = 1 to stop if crust is removed
+    ind_stop = stopZm;
+
+    % Option to stop simulation if a steady state is reached
     steady_stop = dd.steady_stop;       % 1 to stop once a steady state is reached
     steady_tol = dd.steady_tol;         % tolerance used to determine steady state
 
+    % Option to stop simulation if periodic solution is reached
     periodic_stop = dd.periodic_stop;   % the size of the period to stop once a periodic state is reached, 0 if not
     periodic_tol = dd.periodic_tol;     % tolerance used to determine periodic state (percentage error (old-new)/new): 0.01 means 1% error)
 
@@ -20,66 +26,78 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     savetime = save_period;     % will be updated every output to give the time for the next output
     part = 0;                   % counter for number part of solution we're saving as we go
 
+    % Extract time span and itialise time
     tstart = tspan(1);      % start time
     tend = tspan(2);        % end time
-  
     t = tstart;
-    ss_step = ss0;      % initial condition
-    ss_step.crust = ss_step.Zm-ss_step.Zf>1e-12;
-    ss_step.melt = ss_step.msurf>0; %%%%%%
-    ss_step.t = tstart;
-    ss_step.Z = dd.Z;
-    ss_step.Zedge = dd.Zedge;
-    ss_step.Tsurf = (3/2)*ss_step.T(1) - (1/2)*ss_step.T(2);
-    ss_step.pw = NaN*dd.Z.^0;
-    ss_step.j = 0;
-    ss_step.i = 1;
 
-    ss_step.Qsi = pp.Qsi(t);
-    ss_step.Q0 = pp.Q0(t);
-    ss_step.Tinf = pp.Tinf;
-    ss_step.Rs = pp.Rs(t);
-    ss_step.Rr = pp.Rr(t);
-    ss_step.nu = pp.nuhat(t);
+    j = 0;              % timestep counter
+    crust_gone = 0;     % logical
+    
+    %%%%%%%%%%%%%%%%%%%%%%
+    %% Initial condition
+    %%%%%%%%%%%%%%%%%%%%%%
+    % Some of the variables that will be outputted later are not provided
+    % by the inputted initial condition so are presribed here.
+    ss_step = ss0;          % inputted initial condition
+    ss_step.crust = ss_step.Zm-ss_step.Zf>1e-12;    % logical identifying crust location
+    ss_step.t = tstart;                     % time
+    ss_step.Z = dd.Z;                       % depth below surface (cell centres)
+    ss_step.Zedge = dd.Zedge;               % depth below surface (cell edges)
+    ss_step.Tsurf = (3/2)*ss_step.T(1) - (1/2)*ss_step.T(2);    % surface temperature - linear extrapolation
+    ss_step.pw = NaN*dd.Z.^0;               % water pressure
+    ss_step.qd = pp.K*pp.Kd*pp.perm(ss_step.phi).*pp.krw(ss_step.S);   % lateral drainage
+    ss_step.j = 0;                          % timestep counter
+    ss_step.i = 1;                          % saved solution counter
 
-    ss_step.msurf_cum = 0;      % cumulative surface melt (ADDED 29/01/2024)
-    ss_step.mint_cum = 0*dd.Z.^0;       % cumulative internal melt (ADDED 29/01/2024)
-    ss_step.freeze_cum = 0*dd.Z.^0;     % cumulative internal freezing (ADDED 09/08/2024)
-    ss_step.roff_cum = 0;               % cumulative surface runoff (ADDED 17/09/2024)
+    % Prescribed forcings to be outputted
+    ss_step.Qsi = pp.Qsi(t);        % incoming shortwave radiation
+    ss_step.Q0 = pp.Q0(t);          % longwave radiation and turbulent heat fluxes
+    ss_step.Tinf = pp.Tinf;         % temperature at depth
+    ss_step.Rs = pp.Rs(t);          % snowfall rate
+    ss_step.Rr = pp.Rr(t);          % rainfall rate
+    ss_step.nu = pp.nuhat(t);       % effective heat transfer coefficient
 
-    ss_step.qd = pp.K*pp.Kd*pp.perm(ss_step.phi).*pp.krw(ss_step.S);   % lateral drainage (ADDED 13/03/2024, with lengthscale over which drainage occurs absorbed into the dimensionless form of qd)
-    ss_step.qd_cum = zeros(size(dd.Z));         % cumulative lateral drainage (ADDED 13/03/2024)
+    % Initialise cumulative quantities to zero
+    ss_step.msurf_cum = 0;              % cumulative surface melt
+    ss_step.mint_cum = 0*dd.Z.^0;       % cumulative internal melt
+    ss_step.freeze_cum = 0*dd.Z.^0;     % cumulative internal freezing
+    ss_step.roff_cum = 0;               % cumulative surface runoff
+    ss_step.qd_cum = zeros(size(dd.Z));    % cumulative lateral drainage
 
-    ss_step.Hflag = H_flag(ss_step.H,ss_step.W,pp);
+    % Initialise flags (unsat flag, melt flag, enthalpy flag)
     S = ss_step.S;
     phi = ss_step.phi;
-    ss_step.unsatedge = and(and([S(1);S]<=1-pp.tolS1,[phi(1);phi]>=pp.tolphi0),and([S;S(end)]<=1-pp.tolS1,[phi;phi(end)]>=pp.tolphi0));
-    ss_step.melt = ss_step.msurf>0;
+    ss_step.unsatedge = and(and([S(1);S]<=1-pp.tolS1,...
+        [phi(1);phi]>=pp.tolphi0),and([S;S(end)]<=1-pp.tolS1,...
+        [phi;phi(end)]>=pp.tolphi0));       % unsat flag
+    ss_step.melt = ss_step.msurf>0;                     % melt flag
+    ss_step.Hflag = H_flag(ss_step.H,ss_step.W,pp);     % enthalpy flag
 
-    ss(1) = ss_step;        % store the initial condition
-    
-    j = 0;
-    crust_gone = 0;
-    
+    % Store the initial condition
+    ss(1) = ss_step;
+
+    %%%%%%%%%%%%%%%%
+    %% Timestepping
+    %%%%%%%%%%%%%%%%
     warning('No warning.')
     while and(t<tend,1) %logical(1-ind_stop*(crust_gone>=dd.gap)))              % if stopZm=1, timestepping stops when Zm<=1-12 for dd.gap timesteps in a row
-    % while and(t<tend,logical(1-ind*((ss_step.Zm-ss_step.Zf)<=1e-12))) % if stopZm=1, timestepping stops when Zm<=1e-12
-    % while (ind*(ss_step.Zm>1e-6)+(1-ind)*(t<tend))==1 %t<tend       % if stopZm=1, timestepping stops when Zm<=1e-6
-        % Set the timestep size using the constant timestep size stored in
-        % dd.
-        dt = dd.dt; %dt_adaptive(ss_step,pp,dd)*(dd.adaptive==1) + dd.dt*(1-dd.adaptive==1);
-        dt = min(dt,tend-t);
-        t = t + dt; %  t = min(t + dt,tend);  %      % time at new timestep
-        j = j + 1;          % timestep number
+        % Set the timestep size using the constant value stored in dd
+        dt = dd.dt;
+        dt = min(dt,tend-t);    % adjust final timestep to hit end time
+        t = t + dt;             % time at new timestep
+        j = j + 1;              % timestep number
         
         % Evaluate the forcings at the current timestep
-        Qsi = pp.Qsi(t);
-        Q0 = pp.Q0(t);
-        Rs = pp.Rs(t);
-        Rr = pp.Rr(t);
-        nu = pp.nuhat(t);
+        Qsi = pp.Qsi(t);        % incoming shortwave radiation
+        Q0 = pp.Q0(t);          % longwave radiation adn turbulent heat fluxes
+        Rs = pp.Rs(t);          % snowfall rate
+        Rr = pp.Rr(t);          % rainfall rate
+        nu = pp.nuhat(t);       % effective heat transfer coefficient
         
+        %%%%%%%%%%%%%%%%%%%%%%%%%%
         % Carry out timestepping
+        %%%%%%%%%%%%%%%%%%%%%%%%%%
         ss_step = SEB_iterations(ss_step,Qsi,Q0,pp.Tinf,Rs,Rr,nu,pp,dd,dt);
         if debug_print == 1
             fprintf([newline,'t = ',num2str(t),newline])
@@ -87,11 +105,15 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
 
         crust_gone = double(crust_gone) + double((ss_step.Zm-ss_step.Zf)<=1e-12);
 
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Store the timesteps we want to store
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if or(mod(j-1,dd.gap)==0,t>=tend)   % tend bit makes sure we always store the final timestep
-            if debug_print == 0     % print time only at timesteps to save
+            if debug_print == 0
                 fprintf([newline,'t = ',num2str(t),newline])
             end
+            
+            % Update index i of stored solution steps
             if t>=tend
                 i=i+1;
             else
@@ -104,16 +126,15 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
             ss_step.Zedge = dd.Zedge;     % positions of cell edges
             ss(i) = ss_step;
 
-            % Save solution structure every save_period time (if zero, only
-            % save at the end of the run)
+            % Save solution structure every 'save_period' time (if zero, 
+            % only save at the end of the run)
             if save_period > 0
                 if t > savetime
-                    part = part + 1;        % number part of solution that we're saving
-                    save_time = 120; %inf;      % save the last save_time amount of time of data
+                    part = part + 1;            % number part of solution that we're saving
+                    save_time = 120; %inf;      % save the last 'save_time' amount of time of data
                     save_ind = ss(end).t-[ss.t]<save_time;
                     ss_save = ss(save_ind);
-                    
-                    % save(["wc_periodic_switch_"+runname+"_part_"+num2str(part)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
+
                     save(["Outputs/wc_periodic_switch_"+runname+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
                     
                     % Add another period to savetime so that we don't save
@@ -122,8 +143,9 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
                 end
             end
 
-
-            % Plot solution
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Plot solution (if desired, e.g. for debugging)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if dd.plot==1
                 figure(1)
                 clf;
@@ -148,6 +170,11 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
                 shg
             end
         end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Conditions to stop the timestepping early:
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         % If MATLAB gives a singular or badly scaled matrix warning, stop
         % the timestepping:
         [~,msgid] = lastwarn;
@@ -178,10 +205,5 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
         if and(periodic_stop>0,and(two_periods,small_diff))
             break
         end
-        
-
-        % if (crust_gone>=dd.gap)==1
-        %     ind_stop
-        % end
     end 
 end

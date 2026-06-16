@@ -78,7 +78,11 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     warning('No warning.')
     while and(t<tend,1)
         % Set the timestep size using the constant value stored in dd
-        dt = dd.dt;
+        if j<1000
+            dt = 0.025*dd.dt;
+        else
+            dt = dd.dt;
+        end
         dt = min(dt,tend-t);    % adjust final timestep to hit end time
         t = t + dt;             % time at new timestep
         j = j + 1;              % timestep number
@@ -118,6 +122,16 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
             ss_step.Z = dd.Z;             % positions of cell centres
             ss_step.Zedge = dd.Zedge;     % positions of cell edges
             ss(i) = ss_step;
+
+            % Set phi and S to 0 or 1 below or above the tolerances in the
+            % solution to save (but not in the solution to use in the next
+            % timestep)
+            ss(i).phi(ss(i).phi<=tolphi0) = 0;      % solid
+            ss(i).S(ss(i).S<=tolS0) = 0;            % dry
+            ss(i).S(ss(i).S>=1-tolS1) = 1;          % saturated
+
+            % Set S to 0 in solid regions for clarity in plots
+            ss(i).S(ss(i).phi<=pp.tolphi0) = 0;
 
             % Save solution structure every 'save_period' time (if zero, 
             % only save at the end of the run)

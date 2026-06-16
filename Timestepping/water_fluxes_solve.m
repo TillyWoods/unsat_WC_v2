@@ -31,12 +31,6 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     % dd = structure of discretisations (differentiation matrices etc.)
     % Rs = snowfall rate at surface (scalar)
     % Rr = rainfall rate at surface (scalar)
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Approximate phi and S on the cell edges, using...
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    phi_edge = harmonic_mean(phi);      % ... harmonic mean for phi
-    S_edge = [S(1);S];                  % ... upwinding for phi
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Locate the saturated and unstaurated regions
@@ -53,6 +47,17 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     solid = logical(phi<=tolphi0);          % solid (phi approx 0)
     unsat = logical(1-sat-dry-solid);       % unsaturated (and porous)
     unsatd = logical(unsat+dry);     % unsaturated and dry cells
+
+    % Set phi and S to 0 or 1 below of above the tolerances
+    S(S>=1-tolS1) = 1;
+    phi(phi<=tolphi0) = 0;
+    S(S<=tolS0) = 0;
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Approximate phi and S on the cell edges, using...
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    phi_edge = harmonic_mean(phi);      % ... harmonic mean for phi
+    S_edge = [S(1);S];                  % ... upwinding for phi
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Identify if a saturated region bounded by solid regions exists

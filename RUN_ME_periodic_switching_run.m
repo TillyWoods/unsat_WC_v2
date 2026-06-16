@@ -12,10 +12,10 @@
 %%
 addpath(genpath('.'))   % Add all subfolders to path
 
-Kd_vals = [20,0];
-dZf_vals = [0.005,0.0025,0.00125,0.0025,0.00125];
-dtmultiplier = [0.5,0.5,0.5,0.25,0.25]; %[0.5*0.25*1e-3,0.5*0.25*1e-3,0.5*0.25*1e-3,0.25*0.25*1e-3,0.25*0.25*1e-3];
-dZdtname = ["dZ_0-005_dt_small","dZ_0-0025_dt_small","dZ_0-00125_dt_small","dZ_0-0025_dt_tiny","dZ_0-00125_dt_tiny"];
+Kd_vals = 20; %[20,0];
+dZf_vals = 0.0025; %0.0025; %0.00125; %[0.005,0.0025,0.00125,0.0025,0.00125];
+dtmultiplier = 0.5; %0.5; %0.25; %[0.5,0.5,0.5,0.25,0.25]; %[0.5*0.25*1e-3,0.5*0.25*1e-3,0.5*0.25*1e-3,0.25*0.25*1e-3,0.25*0.25*1e-3];
+dZdtname = ["dZ_0-0025_dtmult_0.5"]; %["dZ_0-00125_dtmult_0.125"]; % ["dZ_0-005_dt_small","dZ_0-0025_dt_small","dZ_0-00125_dt_small","dZ_0-0025_dt_tiny","dZ_0-00125_dt_tiny"];
 
 % Use no drainage solution after 10 periods as initial condition, if the
 % logical below is set to 1 (added 14/08/2025). Otherwise, use steadily
@@ -49,7 +49,7 @@ for i = 1:length(Kd_vals)
         
         %%% Discretisation
         Zend = 100;         % size of domain
-        Zvfine = 1.5;       % size of very fine domain near the surface
+        Zvfine = 2; %1.5;       % size of very fine domain near the surface
         dZedgevF = dZf_vals(j); %0.0025;  % grid size in very fine part of domain
         Zfine = 4;          % bottom of the fine domain that extends below the very fine
         dZedgeF = 0.01;     % grid size is fine part of domain
@@ -116,11 +116,11 @@ for i = 1:length(Kd_vals)
             % Use steadily melting as initial condition
             ss0 = steadily_melting_initial_cond(Qsi/scale.F,Q0/scale.F,pp,dd);  % Dimensionless Qsi and Q0 in here
             % ss0.phi = 0*dd.Z.^0;
-            ss0.S = 1*dd.Z.^0; %0.5*dd.Z.^0;        % fully saturated initially
+            % ss0.S = 1*dd.Z.^0; %0.5*dd.Z.^0;        % fully saturated initially
             [ss0.H,ss0.W] = convert_T_to_H(ss0.T,ss0.phi,ss0.S,pp);
         end
         
-        tspan = [0,20*period]; %[0,20*period]; %[0,10*period]; %[0,1]; %[0,100]; %[0,0.1];
+        tspan = [0,5*period]; %[0,20*period]; %[0,10*period]; %[0,1]; %[0,100]; %[0,0.1];
         
         
         %% Timestepping
@@ -139,144 +139,3 @@ for i = 1:length(Kd_vals)
 
     end
 end
-%% Plotting
-h = [ss.h];
-phi = [ss.phi];
-S = [ss.S];
-T = [ss.T];
-t = [ss.t];
-hdot = [ss.hdot];
-roff = [ss.roff];
-msurf = [ss.msurf];
-Zm = [ss.Zm];
-H = [ss.H];
-Zf = [ss.Zf];
-
-[hgrid,Zgrid] = meshgrid(h,dd.Z);
-[tgrid,Zgrid] = meshgrid(t,dd.Z);
-zgrid = hgrid - Zgrid;
-
-[hedge,Zedge] = meshgrid(h,dd.Zedge);
-[tedge,Zedge] = meshgrid(t,dd.Zedge);
-zedge = hedge - Zedge;
-
-ztop = 0;
-zlimit = -3;
-Ztop = 0;
-Zlimit = 0.5;
-tstart = 0; %tspan(1);
-tend = tspan(2);
-fixed_surface = 0;      % 1 %%
-
-width = 1;
-
-depth_grid = fixed_surface*Zgrid + (1-fixed_surface)*zgrid;
-
-TphiS_plot = figure(3);
-box on
-set(gcf,'units','centimeters','paperpositionmode','auto','position',[2 2 9 10.6]);
-tiledlayout(4,1,'TileSpacing','compact')
-
-colormap(parula(256));
-
-ax(1) = nexttile;
-hold on
-surf(tgrid,depth_grid,T*scale.T,'LineStyle','none')
-view(0,90);
-% contour(tgrid,depth_grid,T*scale.T,[-1e-12,-1e-12],'color','k','linewidth',1.5,'linestyle','--')
-% contour(tgrid,depth_grid,H*scale.H,[0,0],'color','k','linewidth',1.5,'linestyle','-')
-xlim([min(t),max(t)])
-set(gca,'XTick',[])
-c1 = colorbar;
-% caxis([-0.1,0])
-ylabel(c1,'$T$ ($^{\mathrm{o}}$C)','interpreter','latex')
-if fixed_surface == 1
-    plot3(t(Zm>0),Zm(Zm>0),max(T,[],'all')*t(Zm>0).^0,'k--','linewidth',width)
-    plot3(t(Zf>0),Zf(Zf>0),max(T,[],'all')*t(Zf>0).^0,'k--','linewidth',width)
-    ylabel('$Z$ (m)','interpreter','latex')
-    set(gca,'YDir','reverse')
-    caxis([-(-min(scale.T*T(Zgrid<Zlimit),[],'all')),0])
-else
-    plot3(t(Zm>0),h(Zm>0)-Zm(Zm>0),max(T,[],'all')*t(Zm>0).^0,'k--','linewidth',width)
-    plot3(t(Zf>0),h(Zf>0)-Zf(Zf>0),max(T,[],'all')*t(Zf>0).^0,'k--','linewidth',width)
-    ylabel('$z$ (m)','interpreter','latex')
-    plot3(t,h,max(T,[],'all')*t.^0,'k-','linewidth',width)
-    caxis([-(-min(scale.T*T(zgrid>zlimit),[],'all')),0])
-end
-% caxis([-10,0])
-
-ax(2) = nexttile;
-hold on
-surf(tgrid,depth_grid,phi,'LineStyle','none')
-view(0,90);
-% contour(tgrid,depth_grid,phi,[1e-10,1e-10],'color','k','linewidth',1.5,'linestyle','--')
-% contour(tgrid,depth_grid,H*scale.H,[0,0],'color','k','linewidth',1.5,'linestyle','-')
-xlim([min(t),max(t)])
-% title('$\phi$','interpreter','latex')
-set(gca,'XTick',[])
-c2 = colorbar;
-% caxis([0,max(max(phi(and(t>=tstart,t<=tend))))])
-caxis([0,0.2])
-ylabel(c2,'$\phi$','interpreter','latex')
-if fixed_surface == 1
-    plot3(t(Zm>0),Zm(Zm>0),max(phi,[],'all')*t(Zm>0).^0,'k--','linewidth',width)
-    plot3(t(Zf>0),Zf(Zf>0),max(phi,[],'all')*t(Zf>0).^0,'k--','linewidth',width)
-    ylabel('$Z$ (m)','interpreter','latex')
-    set(gca,'YDir','reverse')
-else
-    plot3(t(Zm>0),h(Zm>0)-Zm(Zm>0),max(phi,[],'all')*t(Zm>0).^0,'k--','linewidth',width)
-    plot3(t(Zf>0),h(Zf>0)-Zf(Zf>0),max(phi,[],'all')*t(Zf>0).^0,'k--','linewidth',width)
-    ylabel('$z$ (m)','interpreter','latex')
-    plot3(t,h,max(phi,[],'all')*t.^0,'k-','linewidth',width)
-end
-
-% ax(3) = nexttile;
-% surf(tgrid,zgrid,S,'LineStyle','none')
-% view(0,90);
-% xlim([min(t),max(t)])
-% xlabel('$t$ (day)','interpreter','latex')
-% ylabel('$z$ (m)','interpreter','latex')
-% title('$S$','interpreter','latex')
-% colorbar
-% caxis([0,1])
-
-% linkaxes(ax)
-
-% ylim([-inf,0])
-
-
-ax(3) = nexttile;
-hold on
-plot(t,dim.Qsi(t*scale.t),'r-','displayname','$Q_\mathrm{si}$')
-plot(t,dim.Q0(t*scale.t),'b-','displayname','$Q_0$')
-set(gca,'XTick',[])
-% xlabel('$t$ (day)','interpreter','latex')
-ylabel('(W m$^{-2}$)')
-legend('show','interpreter','latex','position',[0.77,0.36,0.2,0.1]) %,[0.75,0.2,0.2,0.1])
-
-ax(4) = nexttile;
-hold on
-yyaxis left
-plot(t,-hdot,'displayname','$-\dot{h}$')
-% plot(t,roff,'r--','displayname','$r_\mathrm{off}$')
-plot(t,msurf,'displayname','$m_\mathrm{surf}$','linestyle',':')
-ylabel('(m d$^{-1}$)')
-% ylim([5.6e-3,6.4e-3])
-yyaxis right
-plot(t,Zm,'displayname','$Z_\mathrm{m}$')
-plot(t,mean(Zm(and(t>=tstart,t<=tend)))*Zm.^0,'displayname','Mean','linestyle','--')
-% plot(t,Zmsteady*Zm.^0,'displayname','Steady','linestyle',':')
-ylabel('(m)')
-% ylim([0,0.4])
-% xlabel('$t$ (day)','interpreter','latex')
-leg1 = legend('show','interpreter','latex','position',[0.8,0.13-0.12,0.23-0.05,0.14]);
-leg1.ItemTokenSize = [15,1];
-
-linkaxes(ax,'x')
-linkaxes([ax(1),ax(2)],'y')
-if fixed_surface == 1
-    ylim(ax(1),[Ztop,Zlimit])
-else
-    ylim(ax(1),[zlimit,ztop])
-end
-xlim([tstart,tend])

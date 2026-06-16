@@ -78,11 +78,11 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
     warning('No warning.')
     while and(t<tend,1)
         % Set the timestep size using the constant value stored in dd
-        if j<1000
-            dt = 0.025*dd.dt;
-        else
+        %if j<1000  % Use smaller timestep for first 1000 timesteps
+        %    dt = 0.025*dd.dt;
+        %else
             dt = dd.dt;
-        end
+        %end
         dt = min(dt,tend-t);    % adjust final timestep to hit end time
         t = t + dt;             % time at new timestep
         j = j + 1;              % timestep number
@@ -126,9 +126,9 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
             % Set phi and S to 0 or 1 below or above the tolerances in the
             % solution to save (but not in the solution to use in the next
             % timestep)
-            ss(i).phi(ss(i).phi<=tolphi0) = 0;      % solid
-            ss(i).S(ss(i).S<=tolS0) = 0;            % dry
-            ss(i).S(ss(i).S>=1-tolS1) = 1;          % saturated
+            ss(i).phi(ss(i).phi<=pp.tolphi0) = 0;      % solid
+            ss(i).S(ss(i).S<=pp.tolS0) = 0;            % dry
+            ss(i).S(ss(i).S>=1-pp.tolS1) = 1;          % saturated
 
             % Set S to 0 in solid regions for clarity in plots
             ss(i).S(ss(i).phi<=pp.tolphi0) = 0;
@@ -185,7 +185,7 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
         % If MATLAB gives a singular or badly scaled matrix warning, stop
         % the timestepping:
         [~,msgid] = lastwarn;
-        if or(strcmp('MATLAB:nearlySingularMatrix',msgid),strcmp('MATLAB:SingularMatrix',msgid))
+        if or(or(strcmp('MATLAB:nearlySingularMatrix',msgid),strcmp('MATLAB:SingularMatrix',msgid)),strcmp('MATLAB:illConditionedMatrix',msgid))
             disp('Timestepping stopped due to singular or badly scaled matrix.')
             break
         end

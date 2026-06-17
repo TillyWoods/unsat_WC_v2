@@ -30,8 +30,7 @@ function [Hnew,Wnew,Tnew,phinew,Snew,Tsurfnew,msurfnew,hdotnew] = enthalpy_water
     W = ss_old.W;
     phi = ss_old.phi;
     S = ss_old.S;
-    q = ss_old.q;
-    
+    q = ss_old.q; 
    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Calculate permeabilities on cell edges

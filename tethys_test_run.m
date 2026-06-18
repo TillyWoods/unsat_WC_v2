@@ -5,4 +5,6 @@ dt = 0.25*0.25*1e-3;    % timestep size
 Kd = 20;                % lateral drainage parameter
 tspan = [0,300];        % time span
 
+tic
 periodic_switching_run(dt,dZ,Kd,tspan)
+toc

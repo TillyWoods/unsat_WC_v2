@@ -7,7 +7,7 @@ function dd = discretise(Zedge)
     
     % Timestepping
     dd.dt = 1e-3;                       % timestep
-    dd.adaptive = 1;                    % 1 to use adaptive timestepping, 0 to use dd.dt every timestep
+    dd.adaptive = 0;                    % 1 to use adaptive timestepping, 0 to use dd.dt every timestep
     dd.gap = 10;                        % store every 'gap' timesteps
     dd.save_mean = 0;                   % 1 to save the mean solution over 'gap' timesteps, rather than the snapshot at the 'gap'th timestep
     dd.stopZm = 0;                      % = 1 to stop the simulation when the crust thicknes becomes zero

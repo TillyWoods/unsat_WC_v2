@@ -125,7 +125,7 @@ for i = 1:length(Kd_vals)
         
         %% Timestepping
         tic
-        ss = timestepping(ss0,pp,dd,tspan,runname);
+        ss = timestepping(ss0,pp,dd,tspan); %,runname);
         toc
         
         %% Save data

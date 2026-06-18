@@ -36,7 +36,7 @@ tspan = [0,5*period];
 
 %% Timestepping
 tic
-ss = timestepping(ss0,pp,dd,tspan,runname);
+ss = timestepping(ss0,pp,dd,tspan);
 toc
 
 %% Save data

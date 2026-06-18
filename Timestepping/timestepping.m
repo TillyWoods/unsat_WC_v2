@@ -1,4 +1,4 @@
-function ss = timestepping(ss0,pp,dd,tspan,runname)
+function ss = timestepping(ss0,pp,dd,tspan)
     % Carry out the simulation, i.e. do the timestepping until the final
     % time is reached (or another condition, e.g. reaching a stead state,
     % is met).
@@ -142,7 +142,7 @@ function ss = timestepping(ss0,pp,dd,tspan,runname)
                     save_ind = ss(end).t-[ss.t]<save_time;
                     ss_save = ss(save_ind);
 
-                    save(["Outputs/wc_periodic_switch_"+runname+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
+                    save(["Outputs/wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dZedgevF),'.','-')+"_dt_"+strrep(num2str(dt),'.','-')+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
                     
                     % Add another period to savetime so that we don't save
                     % any more solutions until another period has passed

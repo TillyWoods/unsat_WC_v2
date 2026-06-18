@@ -36,7 +36,7 @@ ss0 = steadily_melting_initial_cond(pp.Qsi(1),pp.Q0(1),pp,dd);  % Dimensionless 
 
 %% Timestepping
 tic
-ss = timestepping(ss0,pp,dd,tspan,runname);
+ss = timestepping(ss0,pp,dd,tspan);
 toc
 
 %% Save data

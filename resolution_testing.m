@@ -1,8 +1,8 @@
 %% Periodic switching resoltion testing
 
 % dZ and corresponding dt values
-dZvals = [1,1/2,1/4,1/8,1/8,1/16]*0.01;
-dtvals = [1,0.5,0.25,0.1,0.125,0.05]*0.25*1e-3;
+dZvals = [1,1/2,1/4,1/8,1/16]*0.01;
+dtvals = [1,0.5,0.25,0.1,0.05]*0.25*1e-3;
 
 % Lateral drainage values
 Kdvals = [20,0];

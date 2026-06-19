@@ -14,11 +14,13 @@ trange = @(t) and(t<=t(end)-shift,t>t(end)-60-shift);
 
 % Drainage (Kd=20)
 load("../wc_periodic_switch_Kd_20_11-Jun-2026_dZ_0-0025_dt_halved.mat")
+%load("../Outputs/Resolution_testing/wc_periodic_switch_Kd_20_dZ_0-00125_dt_2-5e-05_19-Jun-2026.mat")
 ssd = ss_save;
 t = [ssd.t];
 ssd = ssd(trange(t));
 
 % No drainage (Kd=0)
+%load("../wc_periodic_switch_Kd_0_10-Jun-2026_23_43_59.mat")
 load("../wc_periodic_switch_Kd_0_11-Jun-2026_dZ_0-0025_dt_halved.mat")
 
 ssnd = ss_save;

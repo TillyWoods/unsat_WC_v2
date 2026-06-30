@@ -9,7 +9,7 @@ figure(2)
 clf
 hold on
 plot(t,Qsi(t))
-%plot(t,Q0(t))
+plot(t,Q0(t))
 
 function Q = tanhAtoB(x,A,B,x0,eps)
     % tanh function that smoothly transitions from value Q=A to Q=B

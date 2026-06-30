@@ -14,7 +14,7 @@ dd = discretise_nonuniform("dt",dt,"dZedgevF",dZedgevF,"Zvfine",dZvfine);
 dim = dimensional_parameters();
 
 % Periodic switching forcings
-[dim.Qsi,dim.Q0] = periodic_switching_forcing(dim);
+[dim.Qsi,dim.Q0] = periodic_switching_forcing_smooth(dim);
 
 scale = scalings(dim);
 pp = dimensionless_parameters(dim,scale);

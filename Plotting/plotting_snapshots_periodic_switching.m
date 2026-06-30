@@ -2,7 +2,7 @@ set(0,'DefaultTextInterpreter','latex');
 set(0,'DefaultAxesFontSize',12,'DefaultTextFontSize',12);
 set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
-set(0,'DefaultLineLineWidth',1)
+set(0,'DefaultLineLineWidth',2)
 
 addpath(genpath('.'))       % Add all subfolders to path
 %%
@@ -32,7 +32,8 @@ to_plot = zeros(np,1);
 for i=1:np
     to_plot(i) = find(t>=plot_times(i),1);
 end
-%to_plot = length(ss)-[5,4,3,2,1,0];
+to_plot = length(ss)-[5,4,3,2,1,0];
+plot_times = t(to_plot); tbegin = 0;
 plot_every = 1;     % plot every 'plot_every' of the plot_times times in the main figure - plot all in inset up to time 'inset_end'
 inset_end = plot_times(end);     % final time to plot in the inset
 

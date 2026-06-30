@@ -191,26 +191,26 @@ function ss = timestepping(ss0,pp,dd,tspan)
         end
         
         % If desired, stop timestepping when steady state is reached
-        if and(steady_stop,norm(ss(i).T-ss(i-1).T)+norm(ss(i).phi-ss(i-1).phi)+norm(ss(i).S-ss(i-1).S)<steady_tol)
-            disp('Steady state reached.')
-            break
-        end
+        %if and(steady_stop,norm(ss(i).T-ss(i-1).T)+norm(ss(i).phi-ss(i-1).phi)+norm(ss(i).S-ss(i-1).S)<steady_tol)
+        %    disp('Steady state reached.')
+        %    break
+        %end
         
         % If desired, stop timestepping when perioic state is reached
-        np = ceil(periodic_stop/dd.dt/dd.gap);
-        two_periods = and(length([ss.t])>2*np,mod(length([ss.t]),np)==1);      % if an integer number of at least 2 periods have happened
-        if two_periods
-            norm_diff = norm([ss(i-np:i).T]-[ss(i-2*np:i-np).T])+norm([ss(i-np:i).phi]-[ss(i-2*np:i-np).phi])...
-                +norm([ss(i-np:i).S]-[ss(i-2*np:i-np).S]);      % norm of the difference between the latest two periods of solution
-            norm_one = norm([ss(i-np:i).T])+norm([ss(i-np:i).phi])...
-                +norm([ss(i-np:i).S]);      % norm of the latest period of solution
-            errorp = norm_diff/norm_one    % percentage error
-            small_diff = errorp < periodic_tol;      % if the difference between the last 2 periods is small
-        else
-            small_diff=0;
-        end
-        if and(periodic_stop>0,and(two_periods,small_diff))
-            break
-        end
+        %np = ceil(periodic_stop/dd.dt/dd.gap);
+        %two_periods = and(length([ss.t])>2*np,mod(length([ss.t]),np)==1);      % if an integer number of at least 2 periods have happened
+        %if two_periods
+        %    norm_diff = norm([ss(i-np:i).T]-[ss(i-2*np:i-np).T])+norm([ss(i-np:i).phi]-[ss(i-2*np:i-np).phi])...
+        %        +norm([ss(i-np:i).S]-[ss(i-2*np:i-np).S]);      % norm of the difference between the latest two periods of solution
+        %    norm_one = norm([ss(i-np:i).T])+norm([ss(i-np:i).phi])...
+        %        +norm([ss(i-np:i).S]);      % norm of the latest period of solution
+        %    errorp = norm_diff/norm_one    % percentage error
+        %    small_diff = errorp < periodic_tol;      % if the difference between the last 2 periods is small
+        %else
+        %    small_diff=0;
+        %end
+        %if and(periodic_stop>0,and(two_periods,small_diff))
+        %    break
+        %end
     end 
 end

@@ -3,13 +3,14 @@ figure(1)
 clf
 plot(x,tanhAtoB(x,50,100,20,0.1))
 
-[Qsi,Q0] = periodic_switching_forcing_smooth(dim);
-t = linspace(0,120,1000);
+tscale = 24*60*60;
+[Qsi,Q0] = periodic_switching_forcing_smooth(tscale);
+t = linspace(0,120,1000)*24*60*60;
 figure(2)
 clf
 hold on
-plot(t,Qsi(t))
-plot(t,Q0(t))
+plot(t/dim.td,Qsi(t))
+plot(t/dim.td,Q0(t))
 
 function Q = tanhAtoB(x,A,B,x0,eps)
     % tanh function that smoothly transitions from value Q=A to Q=B

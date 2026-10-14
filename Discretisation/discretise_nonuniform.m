@@ -22,7 +22,7 @@ Zedge = nonuniform_Zedge_3_parts(options.Zend,options.Zvfine,...
 dd = discretise(Zedge);
 dd.adaptive = 0;    % no adaptive timestepping
 dd.dt = options.dt;
-dd.gap = 400/(dd.dt/(0.25*1e-3));      % save every 'gap' timesteps
+dd.gap = floor(400/(dd.dt/(0.25*1e-3)));      % save every 'gap' timesteps
 dd.plot = 0;        % 1 to plot the solution as it's calculated
 
 end

@@ -1,0 +1,4 @@
+Outputs/
+*.log
+slurms/
+*.mat

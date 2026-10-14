@@ -13,7 +13,7 @@ tspan = [0,300];
 
 % Run each resolution wuth each drainage value
 for i = 1:length(dZvals)
-    for j = length(Kdvals)
+    for j = 1:length(Kdvals)
         if Kdvals(j)==0
             dt = dtvals0(i);
         else

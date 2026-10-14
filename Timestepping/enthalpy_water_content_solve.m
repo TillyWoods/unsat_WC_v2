@@ -39,6 +39,11 @@ function [Hnew,Wnew,Tnew,phinew,Snew,Tsurfnew,msurfnew,hdotnew] = enthalpy_water
     % Aprroximate phi, S and W on the cell edges using...
     phi_edge = harmonic_mean(phi);  % ...harmonic mean for phi
     S_edge = [S(1);S];              % ...upwinding for S
+    phi_edge(or(isinf(phi_edge),isnan(phi_edge))) = 0;
+    phi_edge(phi_edge < 0) = 0;
+    % (Set phi_edge = 0 anywhere it's inf or NaN, since this indicates that
+    % there was a 1/0 in the harmonic mean calculation, i.e. that phi = 0
+    % on one of the cells. Also set phi_edge = 0 if negative.)
 
     k = pp.K*pp.perm(phi_edge);       % permeability from previous iteration (probably phi^3)
     krw = pp.krw(S_edge);        % relative permeability from previous iteration (probably S^3)

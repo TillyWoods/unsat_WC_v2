@@ -9,7 +9,7 @@ dtvals0 = [1,0.4,0.15,0.06,0.03]*0.5*1e-2;
 Kdvals = [20,0];
 
 % Time span
-tspan = [0,300];
+tspan = [0,180]; %[0,300];
 
 % Run each resolution wuth each drainage value
 for i = 1:length(dZvals)
@@ -20,7 +20,9 @@ for i = 1:length(dZvals)
             dt = dtvals20(i);
         end
         tic
+        fprintf('Starting run: Kd = %i, dZ = %f', Kdvals(j), dt)
         periodic_switching_run(dt,dZvals(i),Kdvals(j),tspan)
+        fprintf('Done: Kd = %i, dZ = %f4.4', Kdvals(j), dt)
         toc
     end
 end

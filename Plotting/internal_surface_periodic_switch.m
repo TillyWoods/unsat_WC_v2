@@ -1,4 +1,4 @@
-%% Internal vs. surface melt and runoff for periodic switching
+%% Subsurface vs. surface melt and runoff for periodic switching
 % 30/05/2025
 
 addpath(genpath('.'))       % Add all subfolders to path
@@ -28,7 +28,7 @@ t = [ssnd.t];
 % ssnd = ssnd(t>t(end)-60);
 ssnd = ssnd(trange(t));
 
-% Calculate internal vs. surface melt and runoff
+% Calculate subsurface vs. surface melt and runoff
 ssmrd = surf_int_percentages(ssd);
 ssmrnd = surf_int_percentages(ssnd);
 
@@ -96,7 +96,7 @@ xlim([0.5,4.5])
 
 text(1+barshift,1.06,['MELT'],'HorizontalAlignment','center','color','k','fontsize',fs-1)
 text(1+barshift,0.6,['Surface'],'HorizontalAlignment','center','color','k','fontsize',fs)
-text(1+barshift-2*barshift,0.04,['Internal'],'HorizontalAlignment','center','color','k','fontsize',fs)
+text(1+barshift-2*barshift,0.04,['Subsurface'],'HorizontalAlignment','center','color','k','fontsize',fs)
 text(3+barshift,1.06,['MELT'],'HorizontalAlignment','center','color','k','fontsize',fs-1)
 text(4-barshift,0.28,['Subsurface',newline,'lateral',newline,'drainage'],'HorizontalAlignment','center','color','w','fontsize',fs)
 text(2-barshift,1.06,['REMOVAL'],'HorizontalAlignment','center','color','k','fontsize',fs-1)

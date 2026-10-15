@@ -6,9 +6,14 @@ set(0,'DefaultTextInterpreter','latex');
 set(0,'DefaultAxesFontSize',12,'DefaultTextFontSize',12);
 set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
-set(0,'DefaultLineLineWidth',2)
+set(0,'DefaultLineLineWidth',1.5)
 
 addpath(genpath('.'))       % Add all subfolders to path
+
+% Directory to save plots into
+output_dir = "OutputPlots_14-10-2026";
+
+plot_extras = 0;
 
 % Colours
 cmap8 = colblind8();
@@ -109,7 +114,7 @@ removal_total = runoff_total + freezeZ_cum;
 net = melt_total - removal_total;      % net mass production - should be zero at end of period
 
 %% Melt and runoff components over time (one period)
-figure(7)
+f7 = figure(7);
 set(gcf,'PaperPositionMode','auto','Units','centimeters','position',[4 4 14 6])
 clf
 box on
@@ -132,58 +137,62 @@ leg.ItemTokenSize = [10 5];
 xlim([tstart,tend])
 % ylim([0,inf]) %([0,0.032])
 
-%% Surface lowering, rounoff, surface fluxes etc.
-% New bit 17/10/2025: to test issues with using different conditions to
-% decide whether the surface is saturated for calculating surfacewater flux
-% vs. surface runoff
+print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
 
-% For calcualting surface water flux:
-sat = and(S>=1-pp.tolS1,phi>0+pp.tolphi0);
-solid = logical(phi<=pp.tolphi0);
-
-% For calculating surface runoff:
-sat_for_roff = (3/2)*W(1,:)-(1/2)*W(2,:) >= 1 - pp.tolS1;
-
-figure(11)
-clf
-box on
-hold on
-plot(t,-hdot*30,'DisplayName','-hdot')
-plot(t,q(1,:)*30,'displayname','q')
-plot(t,(-hdot-q(1,:))*30,'displayname','-hdot-q')
-plot(t,roff*30,'DisplayName','roff')
-yline(1)
-plot(t,W(1,:),'DisplayName','W1')
-plot(t,W(2,:),'DisplayName','W2')
-plot(t,(3/2)*W(1,:) - (1/2)*W(2,:),'DisplayName','Wsurf','LineStyle','--')
-plot(t,sat(1,:)+solid(1,:),'m:','DisplayName','sat(1)+solid(1)')
-plot(t,sat_for_roff,'g:','DisplayName','Wsurf>=1-tolS1')
-plot(t,sat(1,:),'b:','DisplayName','sat(1)')
-plot(t,solid(1,:),'r:','DisplayName','solid(1)')
-plot(t,(3/2)*S(1,:) - (1/2)*S(2,:),'DisplayName','Ssurf','LineStyle','--')
-plot(t,phi(1,:),'DisplayName','phi(1)')
-plot(t,(3/2)*phi(1,:)-(1/2)*phi(2,:),'DisplayName','phisurf')
-plot(t,(3/2)*phi(1,:)-(1/2)*phi(2,:) <= pp.tolphi0,'DisplayName','phisurf<=tolphi0','LineStyle',':')
-xlabel('$t$')
-ylabel('$-\dot{h}$')
-xlim([tstart,tend])
-legend('show')
-
-%% Cumulative melt and runoff
-figure(3)
-clf
-hold on
-box on
-plot(t,melt_total,'DisplayName','Total melt')
-plot(t,runoff_total,'DisplayName','Total runoff')
-plot(t,freezeZ,'DisplayName','Total freeze')
-plot(t,net,'DisplayName','Net mass gain')
-plot(t,msurf_cum,'DisplayName','Surface melt','LineStyle','--')
-plot(t,meltinZ_cum,'DisplayName','Subsurface melt','LineStyle','--')
-plot(t,roff_cum,'DisplayName','Surface runoff','LineStyle','--')
-plot(t,qdZ_cum,'DisplayName','Subsurface runoff','LineStyle','--')
-plot(t,q(1,:),'DisplayName','Surface q','LineStyle','--')
-xlabel('$t$')
-ylabel('Cumulative...')
-xlim([tstart,tend])
-legend('show')
+if plot_extras == 1
+    %% Surface lowering, rounoff, surface fluxes etc.
+    % New bit 17/10/2025: to test issues with using different conditions to
+    % decide whether the surface is saturated for calculating surfacewater flux
+    % vs. surface runoff
+    
+    % For calcualting surface water flux:
+    sat = and(S>=1-pp.tolS1,phi>0+pp.tolphi0);
+    solid = logical(phi<=pp.tolphi0);
+    
+    % For calculating surface runoff:
+    sat_for_roff = (3/2)*W(1,:)-(1/2)*W(2,:) >= 1 - pp.tolS1;
+    
+    f1 = figure(11);
+    clf
+    box on
+    hold on
+    plot(t,-hdot*30,'DisplayName','-hdot')
+    plot(t,q(1,:)*30,'displayname','q')
+    plot(t,(-hdot-q(1,:))*30,'displayname','-hdot-q')
+    plot(t,roff*30,'DisplayName','roff')
+    yline(1)
+    plot(t,W(1,:),'DisplayName','W1')
+    plot(t,W(2,:),'DisplayName','W2')
+    plot(t,(3/2)*W(1,:) - (1/2)*W(2,:),'DisplayName','Wsurf','LineStyle','--')
+    plot(t,sat(1,:)+solid(1,:),'m:','DisplayName','sat(1)+solid(1)')
+    plot(t,sat_for_roff,'g:','DisplayName','Wsurf>=1-tolS1')
+    plot(t,sat(1,:),'b:','DisplayName','sat(1)')
+    plot(t,solid(1,:),'r:','DisplayName','solid(1)')
+    plot(t,(3/2)*S(1,:) - (1/2)*S(2,:),'DisplayName','Ssurf','LineStyle','--')
+    plot(t,phi(1,:),'DisplayName','phi(1)')
+    plot(t,(3/2)*phi(1,:)-(1/2)*phi(2,:),'DisplayName','phisurf')
+    plot(t,(3/2)*phi(1,:)-(1/2)*phi(2,:) <= pp.tolphi0,'DisplayName','phisurf<=tolphi0','LineStyle',':')
+    xlabel('$t$')
+    ylabel('$-\dot{h}$')
+    xlim([tstart,tend])
+    legend('show')
+    
+    %% Cumulative melt and runoff
+    f3 = figure(3);
+    clf
+    hold on
+    box on
+    plot(t,melt_total,'DisplayName','Total melt')
+    plot(t,runoff_total,'DisplayName','Total runoff')
+    plot(t,freezeZ,'DisplayName','Total freeze')
+    plot(t,net,'DisplayName','Net mass gain')
+    plot(t,msurf_cum,'DisplayName','Surface melt','LineStyle','--')
+    plot(t,meltinZ_cum,'DisplayName','Subsurface melt','LineStyle','--')
+    plot(t,roff_cum,'DisplayName','Surface runoff','LineStyle','--')
+    plot(t,qdZ_cum,'DisplayName','Subsurface runoff','LineStyle','--')
+    plot(t,q(1,:),'DisplayName','Surface q','LineStyle','--')
+    xlabel('$t$')
+    ylabel('Cumulative...')
+    xlim([tstart,tend])
+    legend('show')
+end

@@ -7,6 +7,9 @@
 
 addpath(genpath('.'))       % Add all subfolders to path
 
+% Directory to save plots into
+output_dir = "OutputPlots_14-10-2026";
+
 set(0,'DefaultTextInterpreter','latex'); 
 set(0,'DefaultAxesFontSize',12,'DefaultTextFontSize',12);
 set(0,'DefaultAxesTickLabelInterpreter','latex')
@@ -366,3 +369,4 @@ xlim([tmin,tmax])
 % print(Tphi_plot,"evol_plot_unsat_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-dpng','-r600')
 % print(Tphi_plot,"evol_plot_unsat_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-dsvg','-r600')
 % % exportgraphics(Tphi_plot,['evol_plot_unsat.eps'],'ContentType','vector','BackgroundColor','none','Resolution',600)
+print(Tphi_plot,output_dir+"/evol_plot_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')

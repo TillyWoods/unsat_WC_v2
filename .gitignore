@@ -2,3 +2,5 @@ Outputs/
 *.log
 slurms/
 *.mat
+*.png
+*.asv

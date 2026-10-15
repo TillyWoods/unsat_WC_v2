@@ -49,6 +49,8 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     unsatd = logical(unsat+dry);     % unsaturated and dry cells
 
     % Set phi and S to 0 or 1 below of above the tolerances
+    Sold = S;
+    phiold = phi;
     S(S>=1-tolS1) = 1;
     phi(phi<=tolphi0) = 0;
     S(S<=tolS0) = 0;
@@ -141,9 +143,8 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
         end
     end
 
-    % Identify the saturated regions that are NOT bounded by solid on both
-    % sides
-    sat_not_sol = and(sat,~sol_sat_sol);
+    % Identify the saturated regions that do NOT have a solid base
+    sat_not_sol = and(sat,~sat_above_sol);
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -196,10 +197,15 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     lhs = Dflux*spdiags(k,0,dd.N+1,dd.N+1)*Dcentre;
     rhs = Dflux*k + pp.Kd*pp.K*pp.perm(phi);
     
-    % Solve in saturated regions NOT BOUNDED BY TWO SOLID REGION 
+    % Solve in saturated regions WITHOUT A SOLID BASE % (previously NOT BOUNDED BY TWO SOLID REGION) 
     % (The term subracted from the rhs ensures continuity of pressure at 
     % interfaces with unsaturated regions)
     pw(sat_not_sol) = lhs(sat_not_sol,sat_not_sol)\(rhs(sat_not_sol)-lhs(sat_not_sol,unsat)*pw(unsat));
+
+    [~,warnid] = lastwarn;
+    if contains(warnid,'MATLAB:nearlySingularMatrix')
+        warnid
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Calculate fluxes q at cell edges (between cells of same type)
@@ -241,16 +247,36 @@ function [pw,q,roff,funsat_cell,funsat_edge] = water_fluxes_solve(phi,S,W,hdot,p
     q(sat_not_sol_edge) = qsat(sat_not_sol_edge);    % ...saturated cells NOT IN A SOL-SAT-SOL REGION
     q(unsatd_edge) = qunsat(unsatd_edge);   % ...unsaturated/dry cells (use the unsaturated form of q)
 
+    % % Solve for q directly (without solving for pw first) in saturated
+    % % regions bounded by two solid regions, if they exist
+    % % (This is necessary since the problem for pw in these regions is
+    % % ill-posed)
+    % if sum(sol_sat_sol)>0
+    %     bottoms = edges(sol_sat_sol,~sol_sat_sol);  % cells at the bottom of sol-sat-sol regions
+    %     tops = edges(~sol_sat_sol,sol_sat_sol);     % cells at the top of sol-sat-sol regions
+    %     botind = find(bottoms);       % indicies for the bottom cells of sol-sat-sol regions
+    %     topind = find(tops);          % indicies for the top cells of sol-sat-sol regions
+    %     for i = 1:length(botind)    % for each sol-sat-sol region...
+    %         Zbot = dd.Zedge(botind(i)+1);   % edge at bottom
+    %         Ztop = dd.Zedge(topind(i));     % edge at top
+    %         Zspan = [Zbot,Ztop];
+    %         odefunc = @(Z,q) -pp.Kd*pp.K*interp1(dd.Z,pp.perm(phi),Z);    % dq/dZ = -qd = -Kd*K*phi^3 in sat region
+    %         q0 = 0;     % no flux at the bottom of the sol-sat-sol region
+    %         [Zout,qout] = ode15s(odefunc,Zspan,q0);
+    %         q(topind(i):botind(i)+1) = interp1(Zout,qout,dd.Zedge(topind(i):botind(i)+1));   % interpolate onto cell edges
+    %     end
+    % end
+
     % Solve for q directly (without solving for pw first) in saturated
-    % regions bounded by two solid regions, if they exist
+    % regions with a solid base, if they exist
     % (This is necessary since the problem for pw in these regions is
     % ill-posed)
-    if sum(sol_sat_sol)>0
-        bottoms = edges(sol_sat_sol,~sol_sat_sol);  % cells at the bottom of sol-sat-sol regions
-        tops = edges(~sol_sat_sol,sol_sat_sol);     % cells at the top of sol-sat-sol regions
-        botind = find(bottoms);       % indicies for the bottom cells of sol-sat-sol regions
-        topind = find(tops);          % indicies for the top cells of sol-sat-sol regions
-        for i = 1:length(botind)    % for each sol-sat-sol region...
+    if sum(sat_above_sol)>0
+        bottoms = edges(sat_above_sol,~sat_above_sol);  % cells at the bottom of sat-above-sol regions
+        tops = edges(~sat_above_sol,sat_above_sol);     % cells at the top of sat-above-sol regions
+        botind = find(bottoms);       % indicies for the bottom cells of sat-above-sol regions
+        topind = find(tops);          % indicies for the top cells of sat-above-sol regions
+        for i = 1:length(botind)    % for each sat-above-sol region...
             Zbot = dd.Zedge(botind(i)+1);   % edge at bottom
             Ztop = dd.Zedge(topind(i));     % edge at top
             Zspan = [Zbot,Ztop];

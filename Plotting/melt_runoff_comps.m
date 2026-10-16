@@ -11,7 +11,7 @@ set(0,'DefaultLineLineWidth',1.5)
 addpath(genpath('.'))       % Add all subfolders to path
 
 % Directory to save plots into
-output_dir = "OutputPlots_14-10-2026";
+output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026";
 
 plot_extras = 0;
 
@@ -137,7 +137,8 @@ leg.ItemTokenSize = [10 5];
 xlim([tstart,tend])
 % ylim([0,inf]) %([0,0.032])
 
-print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+%print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
 
 if plot_extras == 1
     %% Surface lowering, rounoff, surface fluxes etc.

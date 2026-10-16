@@ -1,7 +1,6 @@
 function ss0 = isothermal_initial_cond(phi0,dd,pp)
-% Isothermal transport initial conditions
-% 21st Feb 2024
-% Input phi0 = "default" to use defalt value below. Otherwaise, phi0 is a
+%% Isothermal transport initial conditions
+% Input phi0 = "default" to use defalt value below. Otherwise, phi0 is a
 % function handle, phi0 = @(Z) phi0.
 if or(isstring(phi0),ischar(phi0))
     phi_func = @(Z) max(0,0.2*(exp(-Z/0.5)-exp(-Z(end)/0.5)));

@@ -5,7 +5,7 @@ addpath(genpath('.'))   % Add all subfolders to path
         
 %% Discretisation
 dt = 0.5*0.25*1e-3;     % timestep size
-dZedgevF = 0.05;        % 'very fine' grid resolution near surface
+dZedgevF = 0.005;        % 'very fine' grid resolution near surface
 dZvfine = 2;            % thickness of 'very fine' zone
 dd = discretise_nonuniform("dt",dt,"dZedgevF",dZedgevF,"Zvfine",dZvfine);
 

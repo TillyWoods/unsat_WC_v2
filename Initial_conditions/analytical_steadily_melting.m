@@ -1,8 +1,7 @@
 function ss = analytical_steadily_melting(Qsi,Q0,Tinf,pp,dd)
-    % 27th October 2022 (updated on 8th Nov 2023 to work when there is no 
-    % crust but a steadily melting solution exists where the ice is solid 
-    % and just the surface is melting (i.e. there is no internal melt)).
-    % Dimensionless.
+    % Analytical steadily melting weathering crust solution for given
+    % incoming shortwave radiatoin Qsi, longwave radiation and turbulent
+    % heat fluxes Q0, and temperature Tinf at depth. All dimensionless.
 
     no_internal_melt = (1-pp.a).*(1-pp.chi).*Qsi./(-Tinf) < ((1-pp.a).*Qsi+Q0)./(pp.Stefan-Tinf);
     
@@ -22,8 +21,6 @@ function ss = analytical_steadily_melting(Qsi,Q0,Tinf,pp,dd)
     
     % Internal radiation
     ss.F = Qsi*(1-pp.a)*(1-pp.chi).*exp(-pp.kappa*dd.Zedge);
-    %ss.Fplus = pp.a*Qsi*exp(-pp.kappa*dd.Zedge);
-    %ss.Fminus = (1-pp.chi*(1-pp.a))*Qsi*exp(-pp.kappa*dd.Zedge);
     
     % Porosity
     ss.phi = (1 + (1/ss.hdot)*(ss.msurf+(pp.Upsilon*Qsi*(1-pp.a)*(1-pp.chi)/pp.Stefan)*(1-exp(-pp.kappa*dd.Z))))...

@@ -1,4 +1,13 @@
-function periodic_switching_run(dt,dZ,Kd,tspan)
+function periodic_switching_run(dt,dZ,Kd,tspan,options)
+
+arguments
+    dt double
+    dZ double
+    Kd double
+    tspan double
+    options.tolphi0 (1,1) double = 1e-4
+    options.tolS1 (1,1) double = 1e-3
+end
 
 %%
 addpath(genpath('.'))   % Add all subfolders to path
@@ -23,8 +32,8 @@ pp = dimensionless_parameters(dim,scale);
 pp.Kd = Kd; %20;
 
 % Solid and saturated tolerances
-pp.tolphi0 = 1e-4;
-pp.tolS1 = 1e-3;
+pp.tolphi0 = options.tolphi0; %1e-4;
+pp.tolS1 = options.tolS1; %1e-3;
 
 %% Initial condition
 % Use steadily melting as initial condition
@@ -44,5 +53,6 @@ save_time = 240; %inf;      % save the last save_time amount of time of data
 save_ind = ss(end).t-[ss.t]<save_time;
 ss_save = ss(save_ind);
 
-save(["wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dZedgevF),'.','-')+"_dt_"+strrep(num2str(dt),'.','-')+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")
+%save(["wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dZedgevF),'.','-')+"_dt_"+strrep(num2str(dt),'.','-')+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")
+save(["wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-')+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")
 end

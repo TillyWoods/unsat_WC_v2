@@ -8,6 +8,6 @@ function pp = isothermal_parameters(pp)
     pp.K = 100;
     pp.B = 1e4;
     pp.Tinf = 0;
-    pp.Kd = 10;     % subsurface drainage
+    pp.Kd = 10;
     pp.tolS1 = 1e-10;
 end

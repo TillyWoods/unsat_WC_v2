@@ -17,7 +17,7 @@ pp = dimensionless_parameters(dim,scale);
 pp = isothermal_parameters(pp);     % update to isothermal values
 
 % Subsurface drainage?
-pp.Kd = 10;     % values of 0, 2, 10 used in manuscript
+pp.Kd = 3;     % values of 0, 2, 10 used in manuscript
 
 %% Initial condition
 phi00 = 0.2;
@@ -37,4 +37,4 @@ toc
 
 %% Save data
 ss_save = ss;
-save("wc_isothermal_Kd_"+num2str(pp.Kd,2)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat","ss_save","pp","dd","scale","dim")
+save("Ouputs/wc_isothermal_Kd_"+num2str(pp.Kd,2)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat","ss_save","pp","dd","scale","dim")

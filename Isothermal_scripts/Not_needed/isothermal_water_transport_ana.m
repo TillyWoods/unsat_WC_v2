@@ -12,6 +12,7 @@ function [Sana,qana,Zw] = isothermal_water_transport_ana(t,Z,q0,phi,pp)
     % NOTE: if surface tension is included, the RHS is no longer equal to
     % -Kd*q, because the additional surface tension term appears in q but
     % not qd.
+    
     K = pp.K;
     Kd = pp.Kd;
     if Kd==0

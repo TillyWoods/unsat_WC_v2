@@ -39,4 +39,4 @@ toc
 
 %% Save data
 ss_save = ss;
-save("wc_sm_Kd_"+num2str(pp.Kd,2)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat","ss_save","pp","dd","scale","dim")
+save("Outputs/wc_sm_Kd_"+num2str(pp.Kd,2)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat","ss_save","pp","dd","scale","dim")

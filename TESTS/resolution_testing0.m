@@ -20,9 +20,9 @@ for i = 1:length(dZvals)
             dt = dtvals20(i);
         end
         tic
-        fprintf('Starting run: Kd = %i, dZ = %f', Kdvals(j), dt)
+        fprintf([newline,'Starting run: Kd = %i, dZ = %f, dt = %f, i = %i',newline], Kdvals(j), dZvals(i), dt, i)
         periodic_switching_run(dt,dZvals(i),Kdvals(j),tspan)
-        fprintf('Done: Kd = %i, dZ = %f4.4', Kdvals(j), dt)
+        fprintf([newline,'Done: Kd = %i, dZ = %f, dt = %f, i = %i',newline], Kdvals(j), dZvals(i), dt, i)
         toc
     end
 end

@@ -1,8 +1,8 @@
 %% Periodic switching resoltion testing
 
 % dZ and corresponding dt values
-dZvals = [1,1/2,1/4,1/8,1/16]*0.01;
-dtvals20 = [1,0.5,0.25,0.1,0.05]*0.25*1e-3;
+dZvals = [1,1,1]*(1/16)*0.01; % [1,1/2,1/4,1/8,1/16]*0.01;
+dtvals20 = [0.045,0.04,0.025]*0.25*1e-3; %[1,0.5,0.25,0.1,0.05]*0.25*1e-3;
 dtvals0 = [1,0.4,0.15,0.06,0.03]*0.5*1e-2;
 
 % Lateral drainage values
@@ -20,9 +20,9 @@ for i = 1:length(dZvals)
             dt = dtvals20(i);
         end
         tic
-        fprintf('Starting run: Kd = %i, dZ = %f', Kdvals(j), dt)
+        fprintf([newline,'Starting run: Kd = %i, dZ = %f, dt = %f, i = %i',newline], Kdvals(j), dZvals(i), dt, i)
         periodic_switching_run(dt,dZvals(i),Kdvals(j),tspan)
-        fprintf('Done: Kd = %i, dZ = %f4.4', Kdvals(j), dt)
+        fprintf([newline,'Done: Kd = %i, dZ = %f, dt = %f, i = %i',newline], Kdvals(j), dZvals(i), dt, i)
         toc
     end
 end

@@ -45,4 +45,4 @@ save_ind = ss(end).t-[ss.t]<save_time;
 ss_save = ss(save_ind);
 tsave = [ss_save.t];
 
-save(["wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")
+save(["Outputs/wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")

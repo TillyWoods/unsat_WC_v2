@@ -53,4 +53,25 @@ function ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt)
     ss.freeze_cum = ss_old.freeze_cum + dt*min(ss.mint,0);  % cumulative subsurface FREEZING
     ss.roff_cum = ss_old.roff_cum + dt*ss.roff;             % cumulative surface runoff
     ss.qd_cum = ss_old.qd_cum + dt*ss.qd;                   % cumulative lateral drainage
+
+    %% Cumulative quantities, but integratin over Z as we go
+    % int_start = tic;
+
+    mint = ss.mint;
+    qd = ss.qd;
+    Zedge = dd.Zedge;
+    top_id = 2;     % =2 to ignore the top cell from the integration (to prevent surface sat/sol switching affecting the result)
+
+    % Integrated quantities at this timestep
+    ss.mint_int = sum(max(mint(top_id:end),0).*diff(Zedge(top_id:end)));    % internal MELT integrated over depth
+    ss.freeze_int = sum(min(mint(top_id:end),0).*diff(Zedge(top_id:end)));  % internal FREEZING integrated over depth
+    ss.qd_int = sum(qd(top_id:end).*diff(Zedge(top_id:end)));               % lateral drainage integrated over depth
+
+    % Cumulative integrated quantities
+    ss.mint_int_cum = ss_old.mint_int_cum + dt*ss.mint_int;
+    ss.freeze_int_cum = ss_old.freeze_int_cum + dt*ss.freeze_int;
+    ss.qd_int_cum = ss_old.qd_int + dt*ss.qd_int;
+
+    % int_end = toc(int_start)
+
 end

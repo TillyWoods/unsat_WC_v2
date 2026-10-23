@@ -60,6 +60,13 @@ function ss = timestepping(ss0,pp,dd,tspan)
     ss_step.roff_cum = 0;               % cumulative surface runoff
     ss_step.qd_cum = zeros(size(dd.Z));    % cumulative lateral drainage
 
+    ss_step.qd_int = 0;             % lateral drainage integrated over depth
+    ss_step.mint_int = 0;           % internal melting integrated over depth
+    ss_step.freeze_int = 0;         % internal freezing integrated over depth
+    ss_step.qd_int_cum = 0;         % cumulative "lateral drainage integrated over depth"
+    ss_step.mint_int_cum = 0;       % cumulative "internal melting integrated over depth"
+    ss_step.freeze_int_cum = 0;     % cumulative "internal freezing integrated over depth"
+
     % Initialise flags (unsat flag, melt flag, enthalpy flag)
     S = ss_step.S;
     phi = ss_step.phi;

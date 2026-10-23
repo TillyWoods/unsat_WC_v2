@@ -25,6 +25,7 @@ roff_col = cmap8(4,:);
 loss_col = 0.8*[1 1 1];
 
 Z = ss(1).Z;            % Z coordinates
+Zedge = ss(1).Zedge;
 t = [ss.t] - (ss(end).t - 62);  
 msurf = [ss.msurf];     % surface melt rate
 mint = [ss.mint];       % subsurface melt rate (at each Z)
@@ -34,9 +35,11 @@ meltin = max(mint,0);   % subsurface melt rate (EXCLUDING freezing) (at each Z)
 freeze = -min(mint,0);   % subsurface freezing rate (at each Z)
 q = [ss.q];
 
-qdZ = trapz(Z,qd);          % total subsurface lateral drainage rate (integrated over Z)
-meltinZ = trapz(Z,meltin);  % total subsurface melt rate (integrated over Z)
-freezeZ = trapz(Z,freeze);  % total subsurface freezing rate (integrated over Z)
+top_id = 2;
+
+qdZ = sum(qd(top_id:end,:).*diff(Zedge(top_id:end))); % trapz(Z,qd);          % total subsurface lateral drainage rate (integrated over Z)
+meltinZ = sum(meltin(top_id:end,:).*diff(Zedge(top_id:end))); %trapz(Z,meltin);  % total subsurface melt rate (integrated over Z)
+freezeZ = sum(freeze(top_id:end,:).*diff(Zedge(top_id:end))); %trapz(Z,freeze);  % total subsurface freezing rate (integrated over Z)
 mintZ = trapz(Z,mint);
 
 % Recalculate all the internal melt rates etc. manually for debugging
@@ -86,12 +89,19 @@ roffnew(satt) = roffsat(satt);
 % shifted to be zero at the start of the period. Cumulative surface
 % runoff should be recalculated.
 % NOTE: the below might not be completely correct because they are
-% calculated using the saved timesteps, which is not all timesteps.
+% calculated using the saved timesteps, which is not all timesteps.#
+
+freeze_cum = [ss.freeze_cum];
+meltin_cum = [ss.mint_cum];
+qd_cum = [ss.qd_cum];
 
 msurf_cum = [ss.msurf_cum]; %cumtrapz(msurf); %[ss.msurf_cum];
-freezeZ_cum = -trapz(Z,[ss.freeze_cum]); %cumtrapz(t,freezeZ);
-meltinZ_cum = trapz(Z,[ss.mint_cum]); % cumtrapz(t,meltinZ);
-qdZ_cum = trapz(Z,[ss.qd_cum]); % cumtrapz(t,qdZ);
+freezeZ_cum = -sum(freeze_cum(top_id:end,:).*diff(Zedge(top_id:end))); %-trapz(Z,[ss.freeze_cum]); %cumtrapz(t,freezeZ);
+meltinZ_cum = sum(meltin_cum(top_id:end,:).*diff(Zedge(top_id:end))); % trapz(Z,[ss.mint_cum]); % cumtrapz(t,meltinZ);
+qdZ_cum = sum(qd_cum(top_id:end,:).*diff(Zedge(top_id:end))); %trapz(Z,[ss.qd_cum]); % cumtrapz(t,qdZ);
+% freezeZ_cum = -sum(freeze_cum.*diff(Zedge)); %-trapz(Z,[ss.freeze_cum]); %cumtrapz(t,freezeZ);
+% meltinZ_cum = sum(meltin_cum.*diff(Zedge)); % trapz(Z,[ss.mint_cum]); % cumtrapz(t,meltinZ);
+% qdZ_cum = sum(qd_cum.*diff(Zedge)); %trapz(Z,[ss.qd_cum]); % cumtrapz(t,qdZ);
 roff_cum = [ss.roff_cum]; %cumtrapz(t,roffnew);
 
 % msurf_cum = cumtrapz(msurf); %[ss.msurf_cum];
@@ -114,7 +124,7 @@ removal_total = runoff_total + freezeZ_cum;
 net = melt_total - removal_total;      % net mass production - should be zero at end of period
 
 %% Melt and runoff components over time (one period)
-f7 = figure(7);
+f7 = figure(8);
 set(gcf,'PaperPositionMode','auto','Units','centimeters','position',[4 4 14 6])
 clf
 box on

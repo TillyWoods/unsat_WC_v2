@@ -12,7 +12,7 @@ set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1)
 
 % Directory to save plots into
-output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026";
+output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026"; %
 
 shift = 0; %20;%5;
 trange = @(t) and(t<=t(end)-shift,t>t(end)-60-shift);
@@ -44,7 +44,7 @@ barshift = 0.05;
 
 barwidth = 0.84;
 
-bars = figure(12);
+bars = figure(13);
 set(gcf,'PaperPositionMode','auto','Units','centimeters','Position',[2 2 7 6]) %6])
 clf
 % box on
@@ -98,22 +98,46 @@ text(2-barshift-0*barshift,0.02,['Refreezing'],'HorizontalAlignment','center','c
 lower = ss(1).h-ss(end).h;
 roff_tot = ssmr.roff_cum_end+ssmr.qd_cum_end;
 
-%print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
-print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
+% print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_NO_TRAPZ_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+%print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
 
 
 function ssmr = surf_int_percentages(ss)
     ssmr.Z = ss(1).Z;
     ssmr.t = [ss.t]-ss(1).t;
+    Zedge = ss(1).Zedge;
+
+    % if isfield(ss,"qd_cum")
+    %     ssmr.qd_cum = trapz(ssmr.Z,[ss.qd_cum]-ss(1).qd_cum);
+    % else
+    %     ssmr.qd_cum = zeros(size(ssmr.t));
+    % end
+    % ssmr.mint_cum = trapz(ssmr.Z,[ss.mint_cum]-ss(1).mint_cum);
+    % ssmr.msurf_cum = [ss.msurf_cum]-ss(1).msurf_cum;
+    % ssmr.roff_cum = [ss.roff_cum]-ss(1).roff_cum;
+    % ssmr.freeze_cum = -trapz(ssmr.Z,[ss.freeze_cum]-ss(1).freeze_cum);
+
+    top_id = 2;
+    
     if isfield(ss,"qd_cum")
-        ssmr.qd_cum = trapz(ssmr.Z,[ss.qd_cum]-ss(1).qd_cum);
+        qd_cum = [ss.qd_cum];
+        ssmr.qd_cum = sum((qd_cum(top_id:end,:)-qd_cum(top_id:end,1)).*diff(Zedge(top_id:end))); %trapz(ssmr.Z,[ss.qd_cum]-ss(1).qd_cum);
     else
         ssmr.qd_cum = zeros(size(ssmr.t));
     end
-    ssmr.mint_cum = trapz(ssmr.Z,[ss.mint_cum]-ss(1).mint_cum);
+
+    meltin_cum = [ss.mint_cum];
+    freeze_cum = [ss.freeze_cum];
+    ssmr.mint_cum = sum((meltin_cum(top_id:end,:)-meltin_cum(top_id:end,1)).*diff(Zedge(top_id:end))); %trapz(ssmr.Z,[ss.mint_cum]-ss(1).mint_cum);
     ssmr.msurf_cum = [ss.msurf_cum]-ss(1).msurf_cum;
     ssmr.roff_cum = [ss.roff_cum]-ss(1).roff_cum;
-    ssmr.freeze_cum = -trapz(ssmr.Z,[ss.freeze_cum]-ss(1).freeze_cum);
+    ssmr.freeze_cum = -sum((freeze_cum(top_id:end,:)-freeze_cum(top_id:end,1)).*diff(Zedge(top_id:end))); %-trapz(ssmr.Z,[ss.freeze_cum]-ss(1).freeze_cum);
+    
+    % ssmr.mint_cum = sum(([ss.mint_cum]-ss(1).mint_cum).*diff([ss(1).Zedge])); %trapz(ssmr.Z,[ss.mint_cum]-ss(1).mint_cum);
+    % ssmr.msurf_cum = [ss.msurf_cum]-ss(1).msurf_cum;
+    % ssmr.roff_cum = [ss.roff_cum]-ss(1).roff_cum;
+    % ssmr.freeze_cum = -sum(([ss.freeze_cum]-ss(1).freeze_cum).*diff([ss(1).Zedge])); %-trapz(ssmr.Z,[ss.freeze_cum]-ss(1).freeze_cum);
     
     if isfield(ss,"qd_cum")
         ssmr.qd_cum_end = ssmr.qd_cum(end);

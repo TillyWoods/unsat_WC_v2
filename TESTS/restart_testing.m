@@ -7,8 +7,8 @@
 addpath(genpath('./../'))   % Add all subfolders to path
 
 % Load the run to run further.
-% load('.\..\Outputs\14-10-2026\wc_periodic_switch_Kd_20_dZ_0-00125_dt_2-5e-05_14-Oct-2026_23_57_24.mat')
-load('.\..\Outputs\14-10-2026\wc_periodic_switch_Kd_20_dZ_0-01_dt_0-00025_14-Oct-2026_15_37_15.mat')
+load('./../Outputs/14-10-2026/wc_periodic_switch_Kd_20_dZ_0-00125_dt_2-5e-05_14-Oct-2026_23_57_24.mat')
+% load('./../Outputs/14-10-2026/wc_periodic_switch_Kd_20_dZ_0-01_dt_0-00025_14-Oct-2026_15_37_15.mat')
 ss = ss_save;
 
 % Use the final timestep that is saved as the initial condition,
@@ -23,6 +23,9 @@ tspan = [t0,t0+180];
 % previous solution above.
 
 % Timestepping
-tic
+start_whole = tic;
 ss = timestepping(ss0,pp,dd,tspan);
-toc
+end_whole = toc(start_whole);
+
+ss_save = ss;
+save(["Outputs/wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(1)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-')+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")

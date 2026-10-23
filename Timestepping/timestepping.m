@@ -19,7 +19,7 @@ function ss = timestepping(ss0,pp,dd,tspan)
 
     % Decide how often to output the solution (i.e. save as .mat)
     save_period = 60;           % output every save_period time
-    savetime = save_period;     % will be updated every output to give the time for the next output
+    savetime = ss0.t + save_period;     % will be updated every output to give the time for the next output
     part = 0;                   % counter for number part of solution we're saving as we go
 
     % Extract time span and itialise time
@@ -149,7 +149,7 @@ function ss = timestepping(ss0,pp,dd,tspan)
                     save_ind = ss(end).t-[ss.t]<save_time;
                     ss_save = ss(save_ind);
 
-                    save(["Outputs/wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.Zedge(2)-dd.Zedge(1)),'.','-')+"_dt_"+strrep(num2str(dt),'.','-')+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
+                    save(["Outputs/wc_periodic_switchy_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.Zedge(2)-dd.Zedge(1)),'.','-')+"_dt_"+strrep(num2str(dt),'.','-')+"_"+strrep(strrep(string(date),' ','_'),':','_')+".mat"],"ss_save","pp","dd")
                     
                     % Add another period to savetime so that we don't save
                     % any more solutions until another period has passed

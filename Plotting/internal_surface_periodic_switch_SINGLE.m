@@ -15,7 +15,7 @@ set(0,'DefaultLineLineWidth',1)
 output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026"; %
 
 shift = 0; %20;%5;
-trange = @(t) and(t<=t(end)-shift,t>t(end)-60-shift);
+trange = @(t) and(t<=t(end)-shift,t>t(end)-60-shift); %and(t<=t(end)-60-shift,t>t(end)-120-shift); %
 
 t = [ss.t];
 ss = ss(trange(t));
@@ -44,7 +44,7 @@ barshift = 0.05;
 
 barwidth = 0.84;
 
-bars = figure(13);
+bars = figure(15);
 set(gcf,'PaperPositionMode','auto','Units','centimeters','Position',[2 2 7 6]) %6])
 clf
 % box on
@@ -99,7 +99,7 @@ lower = ss(1).h-ss(end).h;
 roff_tot = ssmr.roff_cum_end+ssmr.qd_cum_end;
 
 % print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
-print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_NO_TRAPZ_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+% print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_NO_TRAPZ_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
 %print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
 
 

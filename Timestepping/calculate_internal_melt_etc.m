@@ -70,7 +70,7 @@ function ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt)
     % Cumulative integrated quantities
     ss.mint_int_cum = ss_old.mint_int_cum + dt*ss.mint_int;
     ss.freeze_int_cum = ss_old.freeze_int_cum + dt*ss.freeze_int;
-    ss.qd_int_cum = ss_old.qd_int + dt*ss.qd_int;
+    ss.qd_int_cum = ss_old.qd_int_cum + dt*ss.qd_int;
 
     % int_end = toc(int_start)
 

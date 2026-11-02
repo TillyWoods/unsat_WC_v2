@@ -21,9 +21,9 @@ for i = 1:length(listing)
         % run('./../../Plotting/internal_surface_periodic_switch_SINGLE.m')
 
         plot_times_freeze = [22,22.4,22.8,23,24,25];
-        plot_times_melt = [42,43,43.2,43.5,43.7,44]; %[44,45,45.5,46,48,51];
+        plot_times_melt = [43,44,44.4,45,47,50.5]; %[42,43,43.2,43.5,43.7,44]; %[44,45,45.5,46,48,51];
         output_dir = "./../../Plotting/OutputPlots_14-10-2026";
-        %plotting_snapshots_periodic_switching_func(ss,pp,plot_times_freeze,output_dir=output_dir)
+        %plotting_snapshots_periodic_switching_func(ss,pp,plot_times_freeze,fluxes=1,output_dir=output_dir)
         plotting_snapshots_periodic_switching_func(ss,pp,plot_times_melt,output_dir=output_dir)
     end
 end

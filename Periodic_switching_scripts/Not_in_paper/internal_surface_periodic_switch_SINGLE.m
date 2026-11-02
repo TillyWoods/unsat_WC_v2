@@ -12,7 +12,7 @@ set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1)
 
 % Directory to save plots into
-output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026"; %
+output_dir = "."; % "OutputPlots_14-10-2026"; %"OutputPlots_16-10-2026_tols"; %
 
 shift = 0; %20;%5;
 trange = @(t) and(t<=t(end)-shift,t>t(end)-60-shift); %and(t<=t(end)-60-shift,t>t(end)-120-shift); %
@@ -44,7 +44,7 @@ barshift = 0.05;
 
 barwidth = 0.84;
 
-bars = figure(15);
+bars = figure(13);
 set(gcf,'PaperPositionMode','auto','Units','centimeters','Position',[2 2 7 6]) %6])
 clf
 % box on
@@ -94,11 +94,69 @@ text(2-barshift,1.06,['REMOVAL'],'HorizontalAlignment','center','color','k','fon
 text(2-barshift-0*barshift,0.02,['Refreezing'],'HorizontalAlignment','center','color','w','fontsize',fs)
 % text(2.4,-0.04,['Refreezing'],'HorizontalAlignment','center','color','k','fontsize',fs)
 
+mint_cum = ss(end).mint_int_cum - ss(1).mint_int_cum;
+freeze_cum = -(ss(end).freeze_int_cum - ss(1).freeze_int_cum);
+qd_cum = ss(end).qd_int_cum - ss(1).qd_int_cum;
+msurf_cum = ss(end).msurf_cum - ss(1).msurf_cum;
+roff_cum = ss(end).roff_cum - ss(1).roff_cum;
+melt_tot = mint_cum + msurf_cum;
+loss_tot = freeze_cum + qd_cum + roff_cum;
+mass_loss = loss_tot - melt_tot;
+
+% bars = figure(16);
+% set(gcf,'PaperPositionMode','auto','Units','centimeters','Position',[2 2 7 6]) %6])
+% clf
+% % box on
+% hold on
+% i=1;
+% b = bar(2*i-1+barshift,[mint_cum, msurf_cum],barwidth,'stacked');
+% b(1).FaceColor = mint_col;
+% b(2).FaceColor = msurf_col;
+% b = bar(2*i-barshift,[freeze_cum, qd_cum, roff_cum, mass_loss],barwidth,'stacked');
+% b(1).FaceColor = freeze_col;
+% b(2).FaceColor = qd_col;
+% b(3).FaceColor = roff_col;
+% b(4).FaceColor = loss_col;
+% text(2*i+pshift+2.5*barshift,freeze_cum-0.5*vs,[num2str((freeze_cum/melt_tot)*100,'%.0f'),'\%'],'HorizontalAlignment','right','fontsize',pfs,'color','k')
+% text(2*i-1+pshift+barshift,mint_cum-vs,[num2str((mint_cum/melt_tot)*100,'%.0f'),'\%'],'HorizontalAlignment','right','fontsize',pfs,'color','k')
+% text(2*i-1+pshift+barshift,(melt_tot)-vs,[num2str((msurf_cum/melt_tot)*100,'%.0f'),'\%'],'HorizontalAlignment','right','fontsize',pfs,'color','k')
+% if pp.Kd > 0
+% text(2*i+pshift-barshift,(qd_cum+freeze_cum)-vs,[num2str((qd_cum/melt_tot)*100,'%.0f'),'\%'],'HorizontalAlignment','right','fontsize',pfs,'color','w')
+% end
+% text(2*i+pshift-barshift,(loss_tot)-vs,[num2str((roff_cum/melt_tot)*100,'%.0f'),'\%'],'HorizontalAlignment','right','fontsize',pfs,'color','k')
+% 
+% xticks([1.5]) %,3.5])
+% % xticklabels({'$\mathcal{K}_{\mathrm{d}}=0$','$\mathcal{K}_{\mathrm{d}}=3$'})
+% if pp.Kd==0
+%     xticklabels({'\textbf{No drainage}'})
+% else
+%     xticklabels({'\textbf{Drainage}'})
+% end
+% % yticks([])
+% ylabel('Meltwater equivalent') % (m)')
+% xlim([0.5,2.4]) %4.5])
+% ylim([-0.05,1.08])
+
+
+text(1+barshift,1.06,['MELT'],'HorizontalAlignment','center','color','k','fontsize',fs-1)
+text(1+barshift,0.6,['Surface'],'HorizontalAlignment','center','color','k','fontsize',fs)
+text(1+barshift-2*barshift,0.04,['Subsurface'],'HorizontalAlignment','center','color','k','fontsize',fs)
+%text(3+barshift,1.06,['MELT'],'HorizontalAlignment','center','color','k','fontsize',fs-1)
+if pp.Kd>0
+    text(2-barshift,0.28,['Subsurface',newline,'lateral',newline,'drainage'],'HorizontalAlignment','center','color','w','fontsize',fs)
+end
+text(2-barshift,0.75,['Surface',newline,'runoff'],'HorizontalAlignment','center','color','k','fontsize',fs)
+text(2-barshift,1.06,['REMOVAL'],'HorizontalAlignment','center','color','k','fontsize',fs-1)
+%text(4-barshift,1.06,['REMOVAL'],'HorizontalAlignment','center','color','k','fontsize',fs-1)
+% text(2,78-3,['Surface',newline,'runoff'],'HorizontalAlignment','center','color','k','fontsize',fs)
+% text(2,54-3,['Refreezing'],'HorizontalAlignment','center','color','k','fontsize',fs)
+text(2-barshift-0*barshift,0.02,['Refreezing'],'HorizontalAlignment','center','color','w','fontsize',fs)
+% text(2.4,-0.04,['Refreezing'],'HorizontalAlignment','center','color','k','fontsize',fs)
 %% Checking about the numerical mass loss
 lower = ss(1).h-ss(end).h;
 roff_tot = ssmr.roff_cum_end+ssmr.qd_cum_end;
 
-% print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+% print(bars,output_dir+"/bars_IAN_CHANGE9_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
 % print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_NO_TRAPZ_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
 %print(bars,output_dir+"/bars_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
 

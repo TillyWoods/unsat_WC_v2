@@ -1,3 +1,4 @@
+%% Figure 5: periodic switching crust evolution plots
 % November 2023
 % Creates a figure with 4 panels from data produced by the weathering crust time evolution code (e.g. weathering_crust_Oct_2022). The panels are:
 % •	Qsi and Q0 over time
@@ -8,7 +9,7 @@
 addpath(genpath('.'))       % Add all subfolders to path
 
 % Directory to save plots into
-output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026";
+output_dir = ".";
 
 set(0,'DefaultTextInterpreter','latex'); 
 set(0,'DefaultAxesFontSize',12,'DefaultTextFontSize',12);
@@ -16,20 +17,11 @@ set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1)
 
-%% Load saved data, if desired (or just run after e.g. weathering_crust_Oct_2022.m)
-% filename = "Saved_solutions/KAN_M_lateral_drainage/wc_evol_Kd_10_19-Feb-2024_09_36_43.mat";
+%% Load saved data, if desired (or just run after RUN_ME_periodic_switching_run.m)
+% filename = "wc_periodic_switch_Kd_0_dZ_0-00125_dt_0-0003_14-Oct-2026_18_37_09.mat";  % no drainage
+% filename = "wc_periodic_switch_Kd_20_dZ_0-00125_dt_2-5e-05_23-Oct-2026_22_49_27.mat";  % drainage
 % load(filename)
-
-%%
-% Do you want to plot lines to show where snapshots have been taken? If so,
-% set plot_snapshots = 1. The plotting_snapshots_dimensional.m code needs
-% to be run before this so that there is the information about when
-plot_snapshots = 0;
-
-%% Uncomment this if reloading data (as above)ss = ss
-% ss = ss_save;
-Qsi = @(t) pp.Qsi(t); % 0.5*(t>10).*t.^0; %
-Q0 = @(t) pp.Q0(t); % 0.25*t.^0; %
+ss = ss_save;
 
 %%
 set(0,'DefaultTextInterpreter','latex'); 
@@ -38,17 +30,8 @@ set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1)
 
-%%
-% Qsi_mean = trapz(linspace(0,1),Qsi(linspace(0,1)));
-% Q0_mean = trapz(linspace(0,1),Q0(linspace(0,1)));
-% 
-% ss_ma = analytical_steadily_melting(Qsi_mean,Q0_mean,pp.Tinf,pp,dd);    % DIMENSIONLESS
-% 
-% [phi_ma,T_ma,~,~,hdot_ma,Zm_ma,msurf_ma] = analytical_steadily_melting_dimensional(Qsi_mean,Q0_mean,...
-%     pp.Tinf*scale.T,pp.a,pp.chi,dim.rho,dim.c,dim.k,dim.L,dim.kappa,0,dd.Z);
-
-%%
-shift = 0; %5;
+% Shift the period by a certain time for plotting
+shift = 2; %5;
 
 % Plot nondim or dim variables?
 nondim = 1;     % 1 = plot nondim, 0 = plot dim
@@ -195,8 +178,6 @@ box on
 hold on
 plot(t,scaleF*Qsi,'color',col2,'displayname','$Q_\mathrm{si}$')
 plot(t,scaleF*Q0,'color',col1,'displayname','$Q_0$')
-% ind = is_steady_crust(scale.F*Qsi(t),scale.F*Q0(t),pp.a,pp.Tinf*scale.T,0,dim.chi,dim.rho,dim.c,dim.L);
-% plot(t,100*ind,'r-','displayname','SM?')
 set(gca,'XTickLabel',{[]})
 if nondim == 0
     ylabel('(W m$^{-2}$)')
@@ -365,9 +346,6 @@ end
 xlim([tmin,tmax])
 
 %%
-% print(Tphi_plot,"evol_plot_unsat_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-depsc','-r600')
-% print(Tphi_plot,"evol_plot_unsat_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-dpng','-r600')
-% print(Tphi_plot,"evol_plot_unsat_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-dsvg','-r600')
-% % exportgraphics(Tphi_plot,['evol_plot_unsat.eps'],'ContentType','vector','BackgroundColor','none','Resolution',600)
-%print(Tphi_plot,output_dir+"/evol_plot_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
-print(Tphi_plot,output_dir+"/evol_plot_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
+print(Tphi_plot,output_dir+"/evol_plot_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+print(Tphi_plot,output_dir+"/evol_plot_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-depsc','-r600')
+print(Tphi_plot,output_dir+"/evol_plot_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dsvg','-r600')

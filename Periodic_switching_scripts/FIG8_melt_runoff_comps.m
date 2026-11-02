@@ -1,6 +1,7 @@
+%% Figure 8: Melt and runoff components
 % 08/10/2025
 % Plotting the surface and subsurface melt and runoff (and freezing)
-% components throughout a simulation to check they look reasonable.
+% components over 1 period of the periodic switching run.
 
 set(0,'DefaultTextInterpreter','latex'); 
 set(0,'DefaultAxesFontSize',12,'DefaultTextFontSize',12);
@@ -8,10 +9,10 @@ set(0,'DefaultAxesTickLabelInterpreter','latex')
 set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1.5)
 
-addpath(genpath('.'))       % Add all subfolders to path
+addpath(genpath('./..'))       % Add all subfolders to path
 
 % Directory to save plots into
-output_dir = "OutputPlots_16-10-2026_tols"; %"OutputPlots_14-10-2026";
+output_dir = ".";
 
 plot_extras = 0;
 
@@ -52,24 +53,12 @@ freeze_manualZ = trapz(Z,freeze_manual);
 mint_manualZ = trapz(Z,mint_manual);
 
 % Where to start and end the period of interest
-tstart = t(end)-60;
-tend = t(end);
+shift = 2;
+tstart = t(end)-60-shift;
+tend = t(end) - shift;
 istart = find(t>=tstart,1,'first');
 iend = find(t>=tend,1,'first');
 
-% roff has lots of zeros in it when it shouldn't. I think this might be due
-% to using the condition (3/2)*W(1) - (1/2)*W(2) >= 1 - pp.tolS1.
-% Perhaps this means that the surface is sometimes being treated as not
-% saturated when the surface is effectively saturated.
-
-% POTENTIAL SOLUTION: use a larger tolerance, e.g. 1e-3 or 1e-4 instead of
-% 1e-6.
-% BUT, to implement that change retrospectively (i.e. without having to
-% rerun simulations), the water flux q at the surface must also be
-% recalculated because it is calculated differently depending on whether
-% the surface is treated as saturated or unsaturated. As a hack, linearly
-% extrapolate q at the surface from the two edges below (which should be
-% treated as saturated).
 
 W = [ss.W];         % total water content
 S = [ss.S];
@@ -110,7 +99,7 @@ roff_cum = [ss.roff_cum]; %cumtrapz(t,roffnew);
 % qdZ_cum = cumtrapz(t,qdZ);
 % roff_cum = cumtrapz(t,roffnew);
 
-shift_start = @(x) x - x(istart);   % shift to be zero at the start pf period of interest
+shift_start = @(x) x - x(istart);   % shift to be zero at the start of period of interest
 
 msurf_cum = shift_start(msurf_cum);
 freezeZ_cum = shift_start(freezeZ_cum);
@@ -125,7 +114,7 @@ net = melt_total - removal_total;      % net mass production - should be zero at
 
 %% Melt and runoff components over time (one period)
 f7 = figure(8);
-set(gcf,'PaperPositionMode','auto','Units','centimeters','position',[4 4 14 6])
+set(gcf,'PaperPositionMode','auto','Units','centimeters','position',[4 4 14 4])
 clf
 box on
 hold on
@@ -137,18 +126,22 @@ plot(t,freezeZ,'DisplayName','Freezing','Color',freeze_col)
 %plot(t,freeze_manualZ,'DisplayName','Freezing manual','Color',freeze_col,'LineStyle','--')
 %plot(t,melt_manualZ,'DisplayName','Subsurface melt manual','color',mint_col,'linestyle','--')
 xline([2,22,42],'linestyle','--','HandleVisibility','off')
-plot(t,q(1,:),'DisplayName','Surface q','LineStyle','--')
+%plot(t,q(1,:),'DisplayName','Surface q','LineStyle','--')
 % plot(t,W(1,:)/50)
 % plot(t,roff)
 xlabel('$t$')
 ylabel('Rate')
-leg = legend('show','interpreter','latex','location','north','fontsize',9);
-leg.ItemTokenSize = [10 5];
+if pp.Kd==0
+    leg = legend('show','interpreter','latex','fontsize',9', 'position',[0.75,0.3,0.2,0.5]); %,location','east');
+    leg.ItemTokenSize = [10 5];
+end
 xlim([tstart,tend])
 % ylim([0,inf]) %([0,0.032])
 
-%print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
-print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
+print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dpng','-r600')
+print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-depsc','-r600')
+print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(2)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-'),'-dsvg','-r600')
+%print(f7,output_dir+"/melt_runoff_Kd_"+num2str(pp.Kd,2)+"_tolphi0_"+strrep(num2str(pp.tolphi0),'.','-')+"_tolS1_"+strrep(num2str(pp.tolS1),'.','-'),'-dpng','-r600')
 
 if plot_extras == 1
     %% Surface lowering, rounoff, surface fluxes etc.

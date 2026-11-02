@@ -1,16 +1,25 @@
-Semi-implicit water flux weathering crust code with unsaturated flow and lateral drainage.
+Weathering crust code with unsaturated flow and lateral drainage, used in the manuscript "Radiation-driven melting and porous flow in the near-surface layer of an ice sheet" by Tilly Woods and Ian Hewitt.
 
-The code in this folder solves the above problem with:
-- the water fluxes between two unsaturated cells included implicitly
+The details of the model are provided in the manuscript.
 
-- iterations carried out to update the enthalpy and unsaturated flags (with all other non-linear variables included explicitly, i.e. from the previous timestep, not the previous iteration)
+To produce the figures in the manuscript, run the following scripts:
+	- Fig 2: Isothermal_scripts/FIG2_isothermal_snapshots_3_Kd_vals_fig.m
+	- Fig 3: Isothermal_scripts/FIG3_isothermal_ana_num_evol_comp.m
+	- Fig 4: Steadily_melting_scripts/FIG4_steadily_Kd_compare_combined_fig.m
+	- Fig 6 and 7: Periodic_switching_scripts/FIG6_7_periodic_snapshots_plots.m
 
-- internal radiation F is calculated analytically at each timestep using a scalar extinction coefficient
 
-- F is calculated outside of the iterations, at the start of each timestep (in theory using phi and S from the previous timestep if the code was generalised to allow radiative properties to vary with depth)
+To make the plots for figures 5 and 8, data must be manually loaded first:
+	1. Load either the drainage or no-drainage solution file:
+		- No drainage: Periodic_switching_scripts/wc_periodic_switch_Kd_0_dZ_0-00125_dt_0-0003_14-Oct-2026_18_37_09.mat
+		- Drainage: Periodic_switching_scripts/wc_periodic_switch_Kd_20_dZ_0-00125_dt_2-5e-05_23-Oct-2026_22_49_27.mat
+	2. Run: ss=ss_save;
+	3. Run:
+ 		- Periodic_switching_scripts/FIG5_crust_evolution_plot_unsat_periodic_switching.m
+		- Periodic_switching_scripts/FIG8_melt_runoff_comps
 
-- the water pressure is solved for in saturated regions, using pw=0 as the boundary condition with the surface AND with unsaturated regions
-
-- in saturated regions with two solid boundaries, q is solved for directly using ode15s - I should maybe change this to solve it manually and to apply to any region with a solid base
-
-- the melt flag is updated separately from the enthalpy and unsaturated flag iterations - the melt flag from the previous timestep is assumed, one set of iterations is carried out, then if the melt flag could have be wrong then the set of iterations is redone using the other melt flag
+To carry out the simulations described in the manuscript, run the following:
+	- RUN_ME_isothermal_run.m
+	- RUN_ME_steadily_melting.m
+	- RUN_ME_periodic_switching_run.m
+Within each of these scripts, it is possible to change the value of the lateral drainage strength Kd.

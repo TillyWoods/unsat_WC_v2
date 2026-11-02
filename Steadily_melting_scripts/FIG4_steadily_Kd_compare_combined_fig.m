@@ -32,7 +32,7 @@ colind(end-1:end) = [n_cmap-1,n_cmap];
 Sheight = 3;
 Kdheight = 2;
 
-figure(1)
+smf = figure(1);
 clf
 set(gcf,'PaperPositionMode','auto','units','centimeters','position',[2 2 14 13],'Renderer','painters')
 t = tiledlayout('flow','padding','compact','tilespacing','loose');
@@ -132,7 +132,7 @@ xlim([Kdval-0.6,Kdval+0.6])
 title('(e)')
 xticks([])
 fsize = 9;
-text(Kdval,0.005,['Total internal',newline,'melt'],'VerticalAlignment','middle','HorizontalAlignment','center','FontSize',fsize)
+text(Kdval,0.005,['Subsurface',newline,'melt'],'VerticalAlignment','middle','HorizontalAlignment','center','FontSize',fsize)
 text(Kdval,0.022,['Surface',newline,'melt'],'VerticalAlignment','middle','HorizontalAlignment','center','FontSize',fsize)
 text(Kdval-0.18,0.042,['Total lateral',newline,'drainage'],'VerticalAlignment','middle','HorizontalAlignment','left','FontSize',fsize)
 annotation('arrow',[0.8,0.74],[0.31,0.26])
@@ -145,3 +145,8 @@ plot([ssKdall.Kd],([ssKdall.Zm]-[ssKdall.Zd])./[ssKdall.Zm],'color',col)
 xlabel('$\mathcal{K}_\mathrm{d}$')
 ylabel('$d/Z_\mathrm{m}$')
 xlim([0,200])
+
+%% Save fig
+print(smf,"sm_fig_comb",'-dpng','-r600')
+print(smf,"sm_fig_comb",'-depsc','-r600')
+print(smf,"sm_fig_comb",'-dsvg','-r600')

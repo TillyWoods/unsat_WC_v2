@@ -1,4 +1,6 @@
-function ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt)
+function ss = calculate_internal_melt_etc_IAN(ss,ss_old,pp,dd,dt)
+    % USING ss_old.hdot INSTEAD OF ss.hdot IN mint!!
+    %
     % Calculate additional useful quantities at the end of the timestep:
     % 
     % - mint - subsurface melt rate
@@ -15,11 +17,15 @@ function ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt)
     % - roff_cum - cumulative surface runoff
     % - qd_cum - cumulative lateral drainage
 
+    % v2 edited by Ian to try to make more consistent with the equations
+    % used for the timestep, using ss_old for various quantities instead of
+    % ss
+
     
     %% Internal melt rate, mint
     ss.mint = (ss.phi-ss_old.phi)/dt ...
-        + dd.Dflux*(dd.cell_below*min(ss.hdot,0)...
-        +dd.cell_above*max(ss.hdot,0))*ss.phi;
+        + dd.Dflux*(dd.cell_below*min(ss_old.hdot,0)...
+        +dd.cell_above*max(ss_old.hdot,0))*ss.phi;
 
     %% Locate bottom of the weathering crust, Zm...
     % ...using zero contour matrix of enthalpy. (Two ss.H are used to form 
@@ -44,7 +50,7 @@ function ss = calculate_internal_melt_etc(ss,ss_old,pp,dd,dt)
     ss.h = ss_old.h + dt*ss.hdot;
 
     %% Lateral drainage, qd
-    ss.qd = pp.K*pp.Kd*pp.perm(ss.phi).*pp.krw(ss.S);
+    ss.qd = pp.K*pp.Kd*pp.perm(ss_old.phi).*pp.krw(ss_old.S);
 
     %% Cumulative surface and subsurface melting and runoff, 
     % and subsurface freezing

@@ -1,9 +1,14 @@
 function plotting_snapshots_periodic_switching_func(ss,pp,plot_times_raw,options)
+% Function for plotting profiles (over Z) of various functions T, phi, S,
+% and optionally also the water fluxes q and qd and the subsurface melt
+% rate mint, at given snapshots in time.
 
 arguments
     ss struct               % solution structure
     pp struct                % dimensionless parameters
     plot_times_raw double       % times of snapshots to plot
+    options.fluxes logical = 0  % 1 to plot the water fluxes as well as T, phi, S
+    options.mint logical = 0    % 1 to plot subsurface melt mint as well as T, phi, S
     options.output_dir string = "none"  % name of output directory, if you want the plot to be saved (as a png)
 end
 
@@ -51,7 +56,7 @@ set(gcf,'units','centimeters','paperpositionmode','auto','position',[11 2 18 5.5
 clf;
 ncols = 6; %ceil((length(to_plot)-1)/2);
 tl = tiledlayout(1,ncols,'padding','compact','TileSpacing','compact');
-title(tl,['$\mathcal{K}_\mathrm{d}=',num2str(pp.Kd),',  \Delta Z =',num2str(Zedge(2)-Zedge(1)),'$'],'interpreter','latex')
+% title(tl,['$\mathcal{K}_\mathrm{d}=',num2str(pp.Kd),',  \Delta Z =',num2str(Zedge(2)-Zedge(1)),'$'],'interpreter','latex')
 
 mint_int = zeros(size(to_plot));
 phi_diff_dt_int = zeros(size(to_plot));
@@ -73,11 +78,16 @@ p2 = plot(ss(i).S,Z,'color',Scol,'displayname','$S$'); %,'marker','x');
 p5 = plot(ss(i).T,Z,'color',Tcol,'displayname','$T$');
 % p8 = plot(ss(i).H,Z,'DisplayName','$H$');
 % p9 = plot(ss(i).W,Z,'DisplayName','$W$');
-% p6 = plot(ss(i).mint,Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}$');
-p6 = plot(ss(i).mint/5,Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}/5$');
-% p7 = plot((ss(i).phi-ss(i-1).phi)/(ss(i).t-ss(i-1).t),Z,'Color',mintcol,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$','LineStyle','--');
-p3 = plot(ss(i).q*30,Zedge,'color',qcol,'displayname','$q \times 30$');
-p4 = plot(ss(i).qd*20,Z,'color',qdcol,'displayname','$q_\mathrm{d} \times 20$');
+
+if options.mint == 1
+    % p6 = plot(ss(i).mint,Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}$');
+    p6 = plot(ss(i).mint/5,Z,'color',mintcol,'DisplayName','$m_{\mathrm{int}}/5$');
+    % p7 = plot((ss(i).phi-ss(i-1).phi)/(ss(i).t-ss(i-1).t),Z,'Color',mintcol,'DisplayName','$(\phi-\phi_{\mathrm{old}})/ \mathrm{d} t$','LineStyle','--');
+end
+if options.fluxes == 1 
+    p3 = plot(ss(i).q*30,Zedge,'color',qcol,'displayname','$q \times 30$');
+    p4 = plot(ss(i).qd*20,Z,'color',qdcol,'displayname','$q_\mathrm{d} \times 20$');
+end
 
 title(['$t=',num2str(plot_times(j) - tbegin,3),'$'])
 if j==1
@@ -96,9 +106,9 @@ end
 linkaxes(ax)
 
 if options.output_dir ~= "none"
-    % print(sequence_plot,"periodic_switch_snapshots_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-depsc','-r300')
+    print(sequence_plot,options.output_dir+"/periodic_switch_snapshots_"+base_name,'-depsc','-r300')
     print(sequence_plot,options.output_dir+"/periodic_switch_snapshots_"+base_name,'-dpng','-r600')
-    % print(sequence_plot,"periodic_switch_snapshots_"+strrep(strrep(string(datetime),' ','_'),':','_'),'-dsvg','-r300')
+    % print(sequence_plot,options.output_dir+"/periodic_switch_snapshots_"+base_name,'-dsvg','-r300')
 end
 
 end

@@ -17,7 +17,7 @@ ss = ss_save;
 ss0 = ss(end); %ss(end);
 t0 = ss0.t;
 
-tspan = [t0,t0+180];
+tspan = [t0,t0+3*180];
 
 % No need to calculate dd, pp etc., because these are loaded from the
 % previous solution above.
@@ -28,4 +28,4 @@ ss = timestepping(ss0,pp,dd,tspan);
 end_whole = toc(start_whole);
 
 ss_save = ss;
-save(["Outputs/wc_periodic_switch_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(1)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-')+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")
+save(["Outputs/wc_periodic_switch_IAN_CHANGE9_Kd_"+num2str(pp.Kd,2)+"_dZ_"+strrep(num2str(dd.dZ(1)),'.','-')+"_dt_"+strrep(num2str(dd.dt),'.','-')+"_"+strrep(strrep(string(datetime),' ','_'),':','_')+".mat"],"ss_save","pp","dd","scale","dim")

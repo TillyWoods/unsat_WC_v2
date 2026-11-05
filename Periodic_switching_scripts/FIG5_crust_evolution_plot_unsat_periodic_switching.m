@@ -31,7 +31,7 @@ set(0,'DefaultColorbarTickLabelInterpreter','latex')
 set(0,'DefaultLineLineWidth',1)
 
 % Shift the period by a certain time for plotting
-shift = 2; %5;
+shift = 0; %5;
 
 % Plot nondim or dim variables?
 nondim = 1;     % 1 = plot nondim, 0 = plot dim
@@ -237,11 +237,6 @@ else
 
     % contour3(tgrid,depth_grid,T*scaleT,flip(-[0:0.5:3]),'color',0.5*[1 1 1])
     
-    if plot_snapshots==1
-        for i = 1:length(plot_times)
-            plot([plot_times(i),plot_times(i)]-shift_t,[ztopT,zlimitT],'linestyle',':','color',snapshot_col)
-        end
-    end
 end
 xline(red_lines,'color',xlinecol,'linestyle',xlinestyle)
 
@@ -266,11 +261,6 @@ else
     % plot3(t(Zf>0),h(Zf>0)-Zf(Zf>0),max(phi,[],'all')*t(Zf>0).^0,'k--','linewidth',width)
     ylabel(zlabel,'interpreter','latex')
     plot3(t,h,max(phi,[],'all')*t.^0,'k-','linewidth',width)
-    if plot_snapshots==1
-        for i = 1:length(plot_times)
-            plot3([plot_times(i),plot_times(i)]-shift_t,[ztopphi,zlimitphi],[max(phi,[],'all'),max(phi,[],'all')],'linestyle',':','color',snapshot_col)
-        end
-    end
     contour3(tgrid,zgrid,phi,[0:0.05:1],'color',0.5*[1 1 1])
 
     contour(tgrid,depth_grid,phi,pp.tolphi0*[1 1],'color','k') %,'linestyle','--')
@@ -299,11 +289,6 @@ else
     % plot3(t(Zf>0),h(Zf>0)-Zf(Zf>0),max(S,[],'all')*t(Zf>0).^0,'k--','linewidth',width)
     ylabel(zlabel,'interpreter','latex')
     plot3(t,h,max(S,[],'all')*t.^0,'k-','linewidth',width)
-    if plot_snapshots==1
-        for i = 1:length(plot_times)
-            plot3([plot_times(i),plot_times(i)]-shift_t,[ztopphi,zlimitphi],[max(S,[],'all'),max(S,[],'all')],'linestyle',':','color',snapshot_col)
-        end
-    end
     
     % contour3(tgrid,zgrid,S,[0:0.1:1],'color',0.5*[1 1 1])
 

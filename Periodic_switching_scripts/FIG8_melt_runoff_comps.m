@@ -27,7 +27,7 @@ loss_col = 0.8*[1 1 1];
 
 Z = ss(1).Z;            % Z coordinates
 Zedge = ss(1).Zedge;
-t = [ss.t] - (ss(end).t - 62);  
+t = [ss.t] - (ss(end).t - 60);  
 msurf = [ss.msurf];     % surface melt rate
 mint = [ss.mint];       % subsurface melt rate (at each Z)
 roff = [ss.roff];       % surface runoff rate
@@ -53,7 +53,7 @@ freeze_manualZ = trapz(Z,freeze_manual);
 mint_manualZ = trapz(Z,mint_manual);
 
 % Where to start and end the period of interest
-shift = 2;
+shift = 0;
 tstart = t(end)-60-shift;
 tend = t(end) - shift;
 istart = find(t>=tstart,1,'first');
@@ -125,7 +125,7 @@ plot(t,qdZ,'DisplayName','Subsurface runoff','Color',qd_col)
 plot(t,freezeZ,'DisplayName','Freezing','Color',freeze_col)
 %plot(t,freeze_manualZ,'DisplayName','Freezing manual','Color',freeze_col,'LineStyle','--')
 %plot(t,melt_manualZ,'DisplayName','Subsurface melt manual','color',mint_col,'linestyle','--')
-xline([2,22,42],'linestyle','--','HandleVisibility','off')
+xline([20,40],'linestyle','--','HandleVisibility','off')
 %plot(t,q(1,:),'DisplayName','Surface q','LineStyle','--')
 % plot(t,W(1,:)/50)
 % plot(t,roff)

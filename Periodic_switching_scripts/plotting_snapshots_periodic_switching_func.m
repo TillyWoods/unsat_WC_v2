@@ -30,7 +30,7 @@ t = [ss.t];
 Z = ss(1).Z;
 Zedge = ss(1).Zedge;
 
-tshift = 2;
+tshift = 0;
 period = 60;
 tbegin = t(end) - tshift - period;
 plot_times = t(end) - tshift - period + plot_times_raw; %+0.001;
